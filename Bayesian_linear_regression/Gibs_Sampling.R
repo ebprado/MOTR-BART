@@ -7,7 +7,7 @@
 require(MASS)
 require(ggplot2)
 require(gridExtra)
-set.seed(12346)
+set.seed(12345)
 
 ## MCMC simulation: example 1 (Gibbs sampling)
 ## -------------------------------------------
