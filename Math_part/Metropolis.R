@@ -9,6 +9,7 @@
 require(MASS)
 require(ggplot2)
 require(gridExtra)
+set.seed(12345)
 
 ## MCMC simulation: example 2 (Metropolis-Hastings)
 ## ------------------------------------------------
