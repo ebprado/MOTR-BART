@@ -55,8 +55,6 @@
 
 ReadData <- function(Indicator, Index) {
 
-  setwd("/Users/estevaoprado/OneDrive - Maynooth University/My_package/CredInd/R")
-
   Aux_files <- c('Allowance_198806_201903.csv',
                  '90_past_due_loans_201103_201903.csv',
                  '90_past_due_loans_by_origin_capital_20003_201903.csv',
@@ -103,7 +101,7 @@ ReadData <- function(Indicator, Index) {
   NamesFiles <- aux %>% filter(Aux_info==Indicator) %>% select(Aux_files)
 
   # Reading the data and deleting the last row
-  db <- read.csv(text=paste0(head(readLines(paste('',NamesFiles[1,1],'', sep ='')), -1), collapse="\n"), sep = ';', header=T, na.strings = c('-'))
+  db <- read.csv(text=paste0(head(readLines(system.file("extdata", paste('',NamesFiles[1,1],'', sep =''), package = "CredInd")), -1), collapse="\n"), sep = ';', header=T, na.strings = c('-'))
 
   # Changing the names of the columns
   names(db) <- c(substr(names(db),1,6))
@@ -124,6 +122,7 @@ ReadData <- function(Indicator, Index) {
 
   return(final_list)
 }
+
 # ReadData(Indicator = 'bababa rate', Index = 'Total')
 # data1 <- ReadData(Indicator = 'Interest rate', Index = 'Total')
 # ReadData(Indicator = 'Interest rate', Index = 'New operations companies')

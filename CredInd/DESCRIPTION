@@ -13,7 +13,8 @@ Imports:
     tibble,
     forecast,
     reshape2,
-    dplyr
+    dplyr,
+    readr
 RoxygenNote: 6.1.1
 Suggests: testthat,
     knitr,
