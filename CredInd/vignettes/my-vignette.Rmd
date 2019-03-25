@@ -1,0 +1,98 @@
+---
+title: "CredInd: an R package for analysing credit indicators"
+author: "Estevão Batista do Prado"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This document provides an introduction to the R package `CredInd`, which was created for analysing credit indicators of the public and private banks in Brazil. The information was obtained in the site of the  [Central Bank of Brazil](https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries).
+
+## Introduction to the data
+
+The Central Bank of Brazil (CBB) is the monetary authority that regulates the financial industry in Brazil. Currently, there are more than 150 active commercial banks, and monthly they are obliged to inform the CBB about the clients account, significant financial transactions, existing and new credit contracts, loan more than 90 days past due, etc. After receiving and consolidating the data, the CBB becomes part of this information public. For instance, it is possible to find in the CBB website data about economy activity, monetary indicators, financial market indicators, deliquency rates by product, credit indicators, etc. In this package, we consider only the monthly data of the following credit indicators:
+
+- **Allowance**: provision in relation to the loan portfolio of the financial system;
+- **Spread**: the difference between the interest rate that bank charges the borrower when lending money minus the interest rate payed to the depositor;
+- **Household debt**: represents the sum of all debts (loans, mortgage, credit cards, overdraft utilisation, etc) over the sum of incomes for all clients in the National Financial System;
+- **Interest rate**: average interest rate of new credit operations.
+
+## Package CredInt
+
+The package `CredInt` has 3 functions that read/manipulate (__ReadData__) the data, fit times series models (__FitModels__) and generate a plot (__plot_FitModels__) for the selected credit indicator.
+
+### Function ReadData
+
+The function __ReadData__ has 2 arguments (Indicator and Index). The argument Indicator can be either Allowance, Spread, Household debt or Interest rate. Given the Indicator, the parameter Index varies. As output, the function returns a list containing the dataset with the time series associated to the Indicator and Index, a vector with the dates of the times series, the Indicator and the Index.
+
+```{r, eval=FALSE, echo=TRUE}
+install.packages('CredInd')
+library(CredInd)
+# Examples 
+data0 <- ReadData(Indicator = 'Interest rate', Index = 'Total')
+data1 <- ReadData(Indicator = 'Spread', Index = 'New operations companies')
+data2 <- ReadData(Indicator = 'Household debt', Index = 'Without mortgage')
+data3 <- ReadData(Indicator = 'Allowance', Index = 'Public banks')
+```
+For instance, when Indicator = 'Allowance', the parameter Index can be Total, Public banks, National private control, Foreign control and Private control.
+
+ - **Total**: Percentage of total provision in relation to the loan portfolio of the financial system.
+ - **Public banks**: Percentage of total provision in relation to the loan portfolio of the financial institutions under public control.
+ - **National private control**: Percentage of total provision in relation to the loan portfolio of the financial institutions under national private control.
+ - **Foreign control**: Percentage of total provision in relation to the loan portfolio of the financial institutions under foreign control.
+ - **Private control**: Percentage of total provision in relation to the loan portfolio of the financial institutions under private control.
+
+For Indicator = 'Spread', the parameter Index can be Total, New operations companies, New operations households, Non-revolving total, Non-revolving companies and Non-revolving households.
+
+ - **Total**: Average spread of new credit operations - Total - (percentage points) p.p.
+ - **New operations companies**: Average spread of new credit operations - Companies - Total - p.p.
+ - **New operations households**: Average spread of new credit operations - Households - Total - p.p.
+ - **Non-revolving total**: Average spread of new non-revolving credit operations - Total - p.p.
+ - **Non-revolving companies**: Average spread of new non-revolving credit operations - Companies - Total - p.p.
+ - **Non-revolving households**: Average spread of new non-revolving credit operations - Households - Total - p.p.
+
+For Indicator = 'Household debt', the parameter Index can be Total and Without mortgage.
+
+ - **Total**: Household debt - %.
+ - **Without mortgage**: Household debt without mortgage loans - %.
+
+For Indicator = 'Interest rate', the parameter Index can be Total, New operations companies, New operations households, Non-revolving total, Non-revolving companies and Non-revolving households.
+
+ - **Total**: Average interest rate of new credit operations - Total - % (per year) p.y.
+ - **New operations companies**: Average interest rate of new credit operations - Companies - Total - % p.y.
+ - **New operations households**: Average interest rate of new credit operations - Households - Total - % p.y.
+ - **Non-revolving total**: Average interest rate of new non-revolving credit operations - Total - % p.y.
+ - **Non-revolving companies**: Average interest rate of new non-revolving credit operations - Companies - Total - % p.y.
+ - **Non-revolving households**: Average interest rate of new non-revolving credit operations - Households - Total - % p.y.
+
+### Function FitModels
+
+The function __FitModels__ fits the best AutoRegressive Integrated Moving Average (ARIMA) model for the data of the credit indicators. This function has 2 arguments (data and horizon), where data is the object returned by the function ReadData and horizon represents the number of months that will be considered to generate the forecast based on the model results.
+```{r, eval=FALSE, echo=TRUE}
+library(CredInd)
+# Examples 
+data0 <- ReadData(Indicator = 'Interest rate', Index = 'Total')
+model <- FitModels(data=data0, horizon=20)
+```
+As output, the function returns a list containing the model results, correlation between the observed and fitted values, horizon, Indicator and Index. Also, a dataset containing the fitted values and the forecast results (lower and upper limits of the 95$\%$ confidence interval) is provided.
+
+### Function plot_FitModels
+
+The function __plot_FitModels__ provides a plot for the credit indicator (observed data, fitted values and lower and upper limits of the 95% confidence interval for the forecast).
+```{r, eval=TRUE, echo=TRUE, fig.width=7, fig.align='center', fig.cap='Time series for the average interest rate (% per year) of new operations of the public and private banks in Brazil.', warning=FALSE}
+library(CredInd)
+# Examples 
+data0 <- ReadData(Indicator = 'Interest rate', Index = 'Total')
+model <- FitModels(data=data0, horizon=50)
+plot_FitModels(model)
+```
