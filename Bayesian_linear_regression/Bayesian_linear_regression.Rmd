@@ -157,7 +157,7 @@ Under the Bayesian point of view, the inference process involves data and prior 
 
 
 \begin{align}
-f(\boldsymbol\beta|\sigma^{2}, \textbf{m}, \textbf{V}) & = (2\pi \sigma^{2})^{-d/2} |\textbf{V}|^{-d/2} \exp \Big\{-\frac{1}{2 \sigma^{2}} (\boldsymbol\beta - \textbf{m})^\top \textbf{V}^{-1} (\boldsymbol\beta - \textbf{m})\Big\}. \nonumber
+f(\boldsymbol\beta|\sigma^{2}, \textbf{m}, \textbf{V}) & = (2\pi \sigma^{2})^{-d/2} |\textbf{V}|^{-1/2} \exp \Big\{-\frac{1}{2 \sigma^{2}} (\boldsymbol\beta - \textbf{m})^\top \textbf{V}^{-1} (\boldsymbol\beta - \textbf{m})\Big\}. \nonumber
 \end{align}
 
 
