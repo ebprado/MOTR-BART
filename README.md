@@ -1,2 +1,2 @@
 # BART with Model Trees
-It contains R codes of the BART with Model Trees (simulation and real application).
+It contains R code for the MOTR-BART (simulation and real application).
