@@ -1,2 +1,4 @@
 # BART with Model Trees
-It contains R code for the MOTR-BART (simulation and real application).
+
+Estevão B Prado, Rafael A Moral, Andrew Parnell (2020). Bayesian 
+Additive Regression Trees with Model Trees. ArXiv preprint ArXiv: XXXXXXXX.
