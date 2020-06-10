@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------#
 # Author: Estevao Prado                                                        #
-# Description code: Run MOTR BART in different real data sets.                #
+# Description code: Run MOTR BART on different real data sets.                #
 # Last modified date: 09/06/2020                                               #
 #------------------------------------------------------------------------------#
 options(warn=2)
