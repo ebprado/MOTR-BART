@@ -1,6 +1,6 @@
 #--------------------------------------------------------------------------#
 # Author: Estevao Prado                                                    #
-# Description code: Run BART, RF, GB, GLMnet and NN for different Friedman #
+# Description code: Run BART, RF, GB, GLMnet and NN on different Friedman  #
 #                   data sets                                              #
 # Last modified date: 09/06/2020                                           #
 #--------------------------------------------------------------------------#

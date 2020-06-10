@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------#
 # Author: Estevao Prado                                                        #
-# Description code: Run BART, RF, GB, and GLMnet in different real data sets   # 
+# Description code: Run BART, RF, GB, and GLMnet on different real data sets   # 
 # Last modified date: 09/06/2020                                               #
 #------------------------------------------------------------------------------#
 source('~/R/MOTR_BART.R')
