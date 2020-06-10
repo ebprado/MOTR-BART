@@ -11,7 +11,7 @@
 # Comments about the code:
 # 1 - If you want to understand the general structure of this code, have a look only at the main function (line 24 to 256);
 # 2 - The "auxiliar" functions are presented from line 256 on in the following order:
-  # 01. Create_stump: it initialises the trees to a stump
+  # 01. create_stump: initialises the trees to a stump
   # 02. update_tree: calls the corresponding function associated to the move grow, prune, change, or swap.
   # 03. grow_tree: grows a tree
   # 04. prune_tree: prunes a tree
