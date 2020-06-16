@@ -4,8 +4,8 @@
 #                   split in the linear predictor                              #
 # Reference: Estevao B Prado, Rafael A Moral, Andrew Parnell (2020). Bayesian  # 
 #            Additive Regression Trees with Model Trees. ArXiv preprint ArXiv: #
-#            2006.07493                                                          #
-# Last modified date: 09/06/2020                                               #
+#            2006.07493                                                        #
+# Last modified date: 15/06/2020                                               #
 #------------------------------------------------------------------------------#
 
 # Comments about the code:
