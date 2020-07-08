@@ -40,8 +40,8 @@ X_train = as.data.frame(cbind(x,z, pihat))
 # My BART implementation for causal inference  -------------------
 
 BART_out = rBART(as.data.frame(cbind(x, pihat)), y, z,
-                      num_trees_mu = 10,
-                      num_trees_tau = 10,
+                      num_trees_mu = 5,
+                      num_trees_tau = 5,
                       control = list(node_min_size = 5),
                       MCMC = list(iter = 1000,
                                   burn = 1000,
