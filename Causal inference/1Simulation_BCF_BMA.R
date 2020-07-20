@@ -9,12 +9,12 @@ source('Aux_functions.R')
 # source('MOTR_BART.R')
 
 save_file = '~/R/Discussion_paper/results_sim/'
-filename = 'BMA_Simulation_results'
+filename = '1BCF_BMA_Simulation_results'
 consolidated_results = NULL
 num_rep = 10 # Monte Carlo repetitions
-sample = c(250, 500)
+sample = 250
 ncov = c(5, 50, 100, 500) # number of covariates
-tau_str = c('heterogeneous', 'homogeneous')
+tau_str = c('heterogeneous')
 mu_str = c('linear', 'nonlinear')
 
 for (s in 1:length(sample)){
@@ -55,40 +55,6 @@ t.tau = data.test$tau
 t.x.mod = data.frame(t.x,t.z,t.pihat)
 x.test = makeModelMatrixFromDataFrame(data.frame(rbind(t.x,t.x), z = c(rep(1,n),rep(0,n)), pihat = c(t.pihat, t.pihat)))
 
-# BART-BMA-----------------------------------------------------------------------------------------
-
-j = 0
-fit.bartBMA = NULL
-class(fit.bartBMA) = NULL
-
-while(j <= 3 & any(class(fit.bartBMA) %in% c('error', 'NULL'))) {
-  fit.bartBMA = tryCatch({
-    bartBMA(x.mod, y, x.test = x.train)
-    
-  },error = function(e) e)
-  
-  j = j+1
-}
-
-if (class(fit.bartBMA)[1] != 'simpleError'){
-  
-  tau.hat.bartBMA = fit.bartBMA$test.preds[1:n] -  fit.bartBMA$test.preds[1:n+n]
-  test.bartBMA.prediction = predict_bartBMA(fit.bartBMA, x.test)
-  tau.hat.bartBMA.test = test.bartBMA.prediction[1:n] - test.bartBMA.prediction[1:n+n]
-  aux_bartBMA = c('ps-BART-BMA',
-                  rmse_cate(tau, tau.hat.bartBMA),
-                  rmse_ate(tau, tau.hat.bartBMA),
-                  rmse_cate(tau, tau.hat.bartBMA.test),
-                  rmse_ate(tau, tau.hat.bartBMA.test))
-
-} else {
-  aux_bartBMA = c('ps-BART-BMA',
-                  NA,
-                  NA,
-                  NA,
-                  NA)
-}
-
 # BCF-BMA-----------------------------------------------------------------------------------------
 
 j = 0
@@ -97,7 +63,21 @@ class(fit.bcfBMA) = NULL
 
 while(j <= 3 & any(class(fit.bcfBMA) %in% c('error', 'NULL'))) {
   fit.bcfBMA = tryCatch({
-    bcfBMA(x,y,z,pihat, x.test = t.x, test_z = t.z, test_pihat = as.matrix(t.pihat))
+    #bcfBMA(x,y,z,pihat, x.test = t.x, test_z = t.z, test_pihat = as.matrix(t.pihat))
+    
+    bcfBMA_temp2 <- bcfBMA(x,y,z,pihat,
+                           a_mu=1,a_tau=0.5,nu=3,sigquant=0.9,c=100,
+                           pen_mu=12,pen_tau=12,num_cp_mu=20,num_cp_tau=20,
+                           x.test=t.x,test_z =t.z,test_pihat = as.matrix(t.pihat),
+                           ntree_control=5,ntree_moderate=5,
+                           alpha_mu=0.95,alpha_tau=0.25,beta_mu=2,beta_tau=3,split_rule_node=1,
+                           gridpoint=1,maxOWsize=100,num_splits_mu =5, num_splits_tau =5,
+                           gridsize_mu=20, gridsize_tau=20, include_pi= "control",
+                           zero_split = 1, only_max_num_trees = 1,mu_or_tau_each_round = 1,separate_tree_numbers = 1,
+                           min_num_obs_after_mu_split = 5, min_num_obs_after_tau_split = 5,
+                           transform_resids = 0)
+    
+    #bcfBMAtemppredints <- pred_ints_exact_bcf_TE(bcfBMA_temp2,l_quant=0.025,u_quant=0.975,newdata=NULL,num_cores=1,root_alg_precision = 0.00001)
     
   },error = function(e) e)
   
@@ -106,13 +86,17 @@ while(j <= 3 & any(class(fit.bcfBMA) %in% c('error', 'NULL'))) {
 
 if (class(fit.bcfBMA)[1] != 'simpleError'){
   #tau.hat.bcfBMA <- preds_bcfbma_lin_alg(fit.bcfBMA, num_iter=2000)
-  tau.hat.bcfBMA <- fit.bcfBMA$fitted.values_tau
-  test.bcfBMA.prediction <- fit.bcfBMA$test.preds_tau
+  #tau.hat.bcfBMA <- fit.bcfBMA$ITE_estimates
+  
+  bcfBMAtemppredints <-pred_ints_exact_bcf_TE(bcfBMA_temp2,l_quant=0.025,u_quant=0.975,newdata=t.x,num_cores=1,root_alg_precision = 0.00001)
+  
+  #test.bcfBMA.prediction <- fit.bcfBMA$test.preds_tau
+  
   aux_bcfBMA = c('BCF-BMA',
-                 rmse_cate(tau, tau.hat.bcfBMA),
-                 rmse_ate(tau, tau.hat.bcfBMA),
-                 rmse_cate(tau, test.bcfBMA.prediction),
-                 rmse_ate(tau, test.bcfBMA.prediction))
+                 rmse_cate(tau, fit.bcfBMA$ITE_estimates),
+                 rmse_ate(tau, fit.bcfBMA$CATE_estimate),
+                 rmse_cate(t.tau, bcfBMAtemppredints$ITE_estimates),
+                 rmse_ate(t.tau, bcfBMAtemppredints$CATE_estimate))
   
 } else {
   aux_bcfBMA = c('BCF-BMA',
@@ -122,12 +106,10 @@ if (class(fit.bcfBMA)[1] != 'simpleError'){
                  NA)
 }
 
-
 # Save results
 
 SaveResults = as.data.frame(
   rbind(
-        aux_bartBMA,
         aux_bcfBMA
   )
 )

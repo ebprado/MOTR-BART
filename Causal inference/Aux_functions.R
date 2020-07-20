@@ -6,6 +6,7 @@ library(nnet)
 library(bartBMA)
 library(bcfbma)
 library(safeBart)
+library(BART)
 
 g = function(x){
   ifelse(x == 1, 2, ifelse(x == 2, -1, -4))

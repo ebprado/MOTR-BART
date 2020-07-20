@@ -9,13 +9,13 @@ source('Aux_functions.R')
 source('MOTR_BART.R')
 
 save_file = '~/R/Discussion_paper/results_sim/'
-filename = '250MOTR_BART_Simulation_results'
+filename = '4250MOTR_BART_Simulation_results'
 consolidated_results = NULL
 num_rep = 10 # Monte Carlo repetitions
-sample = c(250) # sample
+sample = 250 # sample
 ncov = c(5, 50, 100, 500) # number of covariates
-tau_str = c('heterogeneous', 'homogeneous')
-mu_str = c('linear')
+tau_str = c('heterogeneous')
+mu_str = c('nonlinear')
 
 for (s in 1:length(sample)){
 for (k in 1:length(ncov)){
@@ -63,8 +63,8 @@ test.tau.motr = test.aux.tau.motr[1:n] -  test.aux.tau.motr[1:n+n]
 aux_motrbart = c('ps-MOTR-BART',
                  rmse_cate(tau, tau.motr.bart),
                  rmse_ate(tau, tau.motr.bart),
-                 rmse_cate(tau, test.tau.motr),
-                 rmse_ate(tau, test.tau.motr))
+                 rmse_cate(t.tau, test.tau.motr),
+                 rmse_ate(t.tau, test.tau.motr))
 
 # Save results
 
