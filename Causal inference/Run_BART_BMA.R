@@ -10,7 +10,7 @@ source('Aux_functions.R')
 # source('MOTR_BART.R')
 
 save_file = '~/R/Discussion_paper/results_sim/'
-filename = '1BMA_Simulation_results'
+filename = 'BMA_Simulation_results'
 consolidated_results = NULL
 num_rep = 50 # Monte Carlo repetitions
 sample = 250

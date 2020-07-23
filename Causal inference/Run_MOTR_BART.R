@@ -11,7 +11,7 @@ source('Aux_functions.R')
 source('MOTR_BART.R')
 
 save_file = '~/R/Discussion_paper/results_sim/'
-filename = '1250MOTR_BART_Simulation_results'
+filename = '250MOTR_BART_Simulation_results'
 consolidated_results = NULL
 num_rep = 50 # Monte Carlo repetitions
 sample = 250 # sample
