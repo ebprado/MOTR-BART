@@ -66,5 +66,5 @@ plott = function(sample_size, treat_effect, estimand, order){
 
 plott(250, 'homogeneous', 'CATE_train', '1') # 10 x 8
 plott(250, 'homogeneous', 'ATE_train', '5') # 10 x 8
-# plott(250, 'homogeneous', 'CATE_test', '1') # 10 x 8
-# plott(250, 'homogeneous', 'ATE_test', '5') # 10 x 8
+plott(250, 'homogeneous', 'CATE_test', '1') # 10 x 8
+plott(250, 'homogeneous', 'ATE_test', '5') # 10 x 8
