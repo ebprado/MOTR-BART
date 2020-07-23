@@ -1,7 +1,8 @@
 #-------------------------------------------------------------------------------------------#
-# Description: Generate RMSE for both ATE and CATE based on synthetic data described        #
-#              in the simulation section in Hahn et al (2020). The results generated here   #
-#              are comparable to those from tables 2 and 3 of the aforementioned paper.     #
+# Description: (BART-BMA) Generate RMSE for both ATE and CATE based on                      #
+#              synthetic data described in the simulation section in Hahn et al (2020).     #
+#              The results generated here are comparable to those from tables 2 and 3 of    #
+#              the aforementioned paper.                                                    #
 #-------------------------------------------------------------------------------------------#
 options(warn=0)
 setwd("~/R/Discussion_paper")
@@ -11,10 +12,10 @@ source('Aux_functions.R')
 save_file = '~/R/Discussion_paper/results_sim/'
 filename = '1BMA_Simulation_results'
 consolidated_results = NULL
-num_rep = 10 # Monte Carlo repetitions
+num_rep = 50 # Monte Carlo repetitions
 sample = 250
 ncov = c(5, 50, 100, 500) # number of covariates
-tau_str = c('heterogeneous')
+tau_str = c('heterogeneous', 'homogeneous')
 mu_str = c('linear', 'nonlinear')
 
 for (s in 1:length(sample)){
@@ -28,8 +29,8 @@ for (i in 1:num_rep){
   print(paste('p = ', ncov[k]))
   print(paste('n = ', sample[s]))
   print(paste('rep = ', i))
-  
-# Train data ----------- 
+
+# Train data -----------
 data = generate_data(n = sample[s], p = ncov[k], tau = tau_str[t], mu = mu_str[m], seed = i + k)
 
 p = data$p
@@ -43,7 +44,7 @@ tau = data$tau
 x.mod = data.frame(x,z,pihat)
 x.train = makeModelMatrixFromDataFrame(data.frame(rbind(x,x),z = c(rep(1,n),rep(0,n)), pihat = c(pihat, pihat)))
 
-# Test data ----------------- 
+# Test data -----------------
 
 data.test = generate_data(n = sample[s], p = ncov[k], tau = tau_str[t], mu = mu_str[m], seed = 1000 + i + k)
 t.y = data.test$y
@@ -64,7 +65,7 @@ class(fit.bartBMA) = NULL
 while(j <= 3 & any(class(fit.bartBMA) %in% c('error', 'NULL'))) {
   fit.bartBMA = tryCatch({
     #bartBMA(x.mod, y, x.test = x.train)
-    
+
     temp_x_pihat <- cbind(x,pihat)
     bartBMA_with_ITEs_exact_par(0.025,0.975,newdata=NULL,update_resids=1,
                                 num_cores=1,root_alg_precision=0.00001,
@@ -78,20 +79,20 @@ while(j <= 3 & any(class(fit.bartBMA) %in% c('error', 'NULL'))) {
                                 only_max_num_trees=1,
                                 min_num_obs_after_split = 5,
                                 exact_residuals = 1)
-    
-    
-    
-    
+
+
+
+
   },error = function(e) e)
-  
+
   j = j+1
 }
 
 if (class(fit.bartBMA)[1] != 'simpleError'){
-  
+
   tau.hat.bartBMA = fit.bartBMA[[2]]
   #test.bartBMA.prediction = predict_bartBMA(fit.bartBMA, x.test)
-  
+
   test_bbma_temp <- bartBMA_with_ITEs_exact_par(0.025,0.975,
                                                 newdata=cbind(t.x,t.pihat),update_resids=1,
                                                 num_cores=1,root_alg_precision=0.00001,
@@ -105,14 +106,14 @@ if (class(fit.bartBMA)[1] != 'simpleError'){
                                                 only_max_num_trees=1,
                                                 min_num_obs_after_split = 5,
                                                 exact_residuals = 1)
-  
+
   tau.hat.bartBMA.test = test_bbma_temp[[2]]
   aux_bartBMA = c('ps-BART-BMA',
                   rmse_cate(tau, tau.hat.bartBMA),
                   sqrt((mean(tau) - fit.bartBMA[[3]])^2),
                   rmse_cate(t.tau, tau.hat.bartBMA.test),
                   sqrt((mean(t.tau) - test_bbma_temp[[3]])^2))
-  
+
 } else {
   aux_bartBMA = c('ps-BART-BMA',
                   NA,
