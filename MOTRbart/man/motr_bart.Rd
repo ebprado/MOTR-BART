@@ -26,7 +26,7 @@ motr_bart(
 
 \item{ntrees}{The number of trees. Default is 10.}
 
-\item{node_min_size}{# Set the size of the smallest node. Default is 5.}
+\item{node_min_size}{Set the size of the smallest node. Default is 5.}
 
 \item{alpha}{The parameter of the prior for the tree. It should be a value within (0,1). Default is 0.95.}
 
