@@ -1,0 +1,358 @@
+* using log directory ‘/Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck’
+* using R version 3.6.3 (2020-02-29)
+* using platform: x86_64-apple-darwin15.6.0 (64-bit)
+* using session charset: UTF-8
+* using options ‘--no-manual --as-cran’
+* checking for file ‘MOTRbart/DESCRIPTION’ ... OK
+* checking extension type ... Package
+* this is package ‘MOTRbart’ version ‘0.1.0’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking serialization versions ... OK
+* checking whether package ‘MOTRbart’ can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+update_z: no visible global function definition for ‘rnorm’
+Undefined global functions or variables:
+  rnorm
+Consider adding
+  importFrom("stats", "rnorm")
+to your NAMESPACE file.
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd line widths ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking examples ... ERROR
+Running examples in ‘MOTRbart-Ex.R’ failed
+The error most likely occurred in:
+
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: predict_motr_bart
+> ### Title: Predictions for a new data set for MOTR-BART
+> ### Aliases: predict_motr_bart predict_motr_bart_class
+> 
+> ### ** Examples
+> 
+> # Simulate a Friedman data set
+> friedman_data = function(n, num_cov, sd_error){
++   x = matrix(runif(n*num_cov),n,num_cov)
++   y = 10*sin(pi*x[,1]*x[,2]) + 20*(x[,3]-.5)^2+10*x[,4]+5*x[,5] + rnorm(n, sd=sd_error)
++   return(list(y = y,
++               x = x))
++ }
+> # Training data
+> data = friedman_data(200, 10, 1)
+> y = data$y
+> x = data$x
+> 
+> # Test data
+> data_test = friedman_data(100, 10, 1)
+> y.test = data_test$y
+> x.test = data_test$x
+> 
+> # Run MOTR-BART
+> set.seed(99)
+> fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100)
+
+  |                                                                  
+  |                                                            |   0%
+  |                                                                  
+  |                                                            |   1%
+  |                                                                  
+  |=                                                           |   1%
+  |                                                                  
+  |=                                                           |   2%
+  |                                                                  
+  |==                                                          |   3%
+  |                                                                  
+  |==                                                          |   4%
+  |                                                                  
+  |===                                                         |   5%
+  |                                                                  
+  |===                                                         |   6%
+  |                                                                  
+  |====                                                        |   6%
+  |                                                                  
+  |====                                                        |   7%
+  |                                                                  
+  |=====                                                       |   8%
+  |                                                                  
+  |=====                                                       |   9%
+  |                                                                  
+  |======                                                      |  10%
+  |                                                                  
+  |======                                                      |  11%
+  |                                                                  
+  |=======                                                     |  11%
+  |                                                                  
+  |=======                                                     |  12%
+  |                                                                  
+  |========                                                    |  13%
+  |                                                                  
+  |========                                                    |  14%
+  |                                                                  
+  |=========                                                   |  15%
+  |                                                                  
+  |=========                                                   |  16%
+  |                                                                  
+  |==========                                                  |  16%
+  |                                                                  
+  |==========                                                  |  17%
+  |                                                                  
+  |===========                                                 |  18%
+  |                                                                  
+  |===========                                                 |  19%
+  |                                                                  
+  |============                                                |  20%
+  |                                                                  
+  |============                                                |  21%
+  |                                                                  
+  |=============                                               |  21%
+  |                                                                  
+  |=============                                               |  22%
+  |                                                                  
+  |==============                                              |  23%
+  |                                                                  
+  |==============                                              |  24%
+  |                                                                  
+  |===============                                             |  25%
+  |                                                                  
+  |===============                                             |  26%
+  |                                                                  
+  |================                                            |  26%
+  |                                                                  
+  |================                                            |  27%
+  |                                                                  
+  |=================                                           |  28%
+  |                                                                  
+  |=================                                           |  29%
+  |                                                                  
+  |==================                                          |  30%
+  |                                                                  
+  |==================                                          |  31%
+  |                                                                  
+  |===================                                         |  31%
+  |                                                                  
+  |===================                                         |  32%
+  |                                                                  
+  |====================                                        |  33%
+  |                                                                  
+  |====================                                        |  34%
+  |                                                                  
+  |=====================                                       |  34%
+  |                                                                  
+  |=====================                                       |  35%
+  |                                                                  
+  |=====================                                       |  36%
+  |                                                                  
+  |======================                                      |  36%
+  |                                                                  
+  |======================                                      |  37%
+  |                                                                  
+  |=======================                                     |  38%
+  |                                                                  
+  |=======================                                     |  39%
+  |                                                                  
+  |========================                                    |  39%
+  |                                                                  
+  |========================                                    |  40%
+  |                                                                  
+  |========================                                    |  41%
+  |                                                                  
+  |=========================                                   |  41%
+  |                                                                  
+  |=========================                                   |  42%
+  |                                                                  
+  |==========================                                  |  43%
+  |                                                                  
+  |==========================                                  |  44%
+  |                                                                  
+  |===========================                                 |  44%
+  |                                                                  
+  |===========================                                 |  45%
+  |                                                                  
+  |===========================                                 |  46%
+  |                                                                  
+  |============================                                |  46%
+  |                                                                  
+  |============================                                |  47%
+  |                                                                  
+  |=============================                               |  48%
+  |                                                                  
+  |=============================                               |  49%
+  |                                                                  
+  |==============================                              |  49%
+  |                                                                  
+  |==============================                              |  50%
+  |                                                                  
+  |==============================                              |  51%
+  |                                                                  
+  |===============================                             |  51%
+  |                                                                  
+  |===============================                             |  52%
+  |                                                                  
+  |================================                            |  53%
+  |                                                                  
+  |================================                            |  54%
+  |                                                                  
+  |=================================                           |  54%
+  |                                                                  
+  |=================================                           |  55%
+  |                                                                  
+  |=================================                           |  56%
+  |                                                                  
+  |==================================                          |  56%
+  |                                                                  
+  |==================================                          |  57%
+  |                                                                  
+  |===================================                         |  58%
+  |                                                                  
+  |===================================                         |  59%
+  |                                                                  
+  |====================================                        |  59%
+  |                                                                  
+  |====================================                        |  60%
+  |                                                                  
+  |====================================                        |  61%
+  |                                                                  
+  |=====================================                       |  61%
+  |                                                                  
+  |=====================================                       |  62%
+  |                                                                  
+  |======================================                      |  63%
+  |                                                                  
+  |======================================                      |  64%
+  |                                                                  
+  |=======================================                     |  64%
+  |                                                                  
+  |=======================================                     |  65%
+  |                                                                  
+  |=======================================                     |  66%
+  |                                                                  
+  |========================================                    |  66%
+  |                                                                  
+  |========================================                    |  67%
+  |                                                                  
+  |=========================================                   |  68%
+  |                                                                  
+  |=========================================                   |  69%
+  |                                                                  
+  |==========================================                  |  69%
+  |                                                                  
+  |==========================================                  |  70%
+  |                                                                  
+  |===========================================                 |  71%
+  |                                                                  
+  |===========================================                 |  72%
+  |                                                                  
+  |============================================                |  73%
+  |                                                                  
+  |============================================                |  74%
+  |                                                                  
+  |=============================================               |  74%
+  |                                                                  
+  |=============================================               |  75%
+  |                                                                  
+  |==============================================              |  76%
+  |                                                                  
+  |==============================================              |  77%
+  |                                                                  
+  |===============================================             |  78%
+  |                                                                  
+  |===============================================             |  79%
+  |                                                                  
+  |================================================            |  79%
+  |                                                                  
+  |================================================            |  80%
+  |                                                                  
+  |=================================================           |  81%
+  |                                                                  
+  |=================================================           |  82%
+  |                                                                  
+  |==================================================          |  83%
+  |                                                                  
+  |==================================================          |  84%
+  |                                                                  
+  |===================================================         |  84%
+  |                                                                  
+  |===================================================         |  85%
+  |                                                                  
+  |====================================================        |  86%
+  |                                                                  
+  |====================================================        |  87%
+  |                                                                  
+  |=====================================================       |  88%
+  |                                                                  
+  |=====================================================       |  89%
+  |                                                                  
+  |======================================================      |  89%
+  |                                                                  
+  |======================================================      |  90%
+  |                                                                  
+  |=======================================================     |  91%
+  |                                                                  
+  |=======================================================     |  92%
+  |                                                                  
+  |========================================================    |  93%
+  |                                                                  
+  |========================================================    |  94%
+  |                                                                  
+  |=========================================================   |  94%
+  |                                                                  
+  |=========================================================   |  95%
+  |                                                                  
+  |==========================================================  |  96%
+  |                                                                  
+  |==========================================================  |  97%
+  |                                                                  
+  |=========================================================== |  98%
+  |                                                                  
+  |=========================================================== |  99%
+  |                                                                  
+  |============================================================|  99%
+  |                                                                  
+  |============================================================| 100%
+> y.test.hat = predict_motr_bart(fit.motr.bart, x.test, 'mean')
+> plot(y.test, y.test.hat); abline(0, 1)
+> 
+> # Run MOTR-BART for classification
+> set.seed(01)
+> y = ifelse(y > median(y), 1, 0)
+> y.test = ifelse(y.test > median(y), 1, 0)
+> fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100)
+Error in motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100) : 
+  could not find function "motr_bart_class"
+Execution halted
+* checking for detritus in the temp directory ... OK
+* DONE
+Status: 1 ERROR, 1 NOTE
