@@ -38,7 +38,7 @@ predict_motr_bart = function(object, newdata,
 ########################################################################################################
 # Predictions for classification
 ########################################################################################################
-#' @importFrom stats 'pnorm'
+
 #' @export
 predict_motr_bart_class = function(object, newdata,
                              type = c('all', 'median', 'mean')) {

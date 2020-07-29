@@ -1,6 +1,6 @@
 #' @export
 #' @importFrom mvtnorm 'rmvnorm'
-#' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd'
+#' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm'
 
 motr_bart = function(x,
                      y,
@@ -175,6 +175,8 @@ motr_bart = function(x,
 ########################################################################################################
 # MOTR-BART for classification
 ########################################################################################################
+
+#' @export
 
 motr_bart_class = function(x,
                      y,
