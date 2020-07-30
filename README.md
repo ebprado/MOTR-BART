@@ -7,7 +7,7 @@ In addition, it provides an implementation of MOTR-BART in a format of R package
 ## Installation
 ``` r
 library(devtools)
-install_github("ebprado/MOTR-BART/tree/master/MOTRbart")
+install_github("ebprado/MOTR-BART/MOTRbart")
 ```
 ## Example
 ``` r
