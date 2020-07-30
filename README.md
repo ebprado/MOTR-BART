@@ -7,6 +7,7 @@ In addition, it also provides an implementation of MOTR-BART in a format of R pa
 ## Installation
 ``
 library(devtools)
+
 install_github("EoghanONeill/safeBart")
 ``
 
