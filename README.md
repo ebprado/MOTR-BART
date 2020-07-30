@@ -5,7 +5,7 @@ This repository contains R scripts and data sets that can be used to reproduce t
 In addition, it also provides an implementation of MOTR-BART in a format of R package.
 
 ## Installation
-``library(devtools)``
+``library(devtools)``\
 ``install_github("ebprado/MOTR-BART/tree/master/MOTRbart")``
 ## Example
 
