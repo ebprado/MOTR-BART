@@ -12,6 +12,7 @@ install_github("ebprado/MOTR-BART/tree/master/MOTRbart")
 ## Example
 ``` r
 library(MOTRbart)
+
 # Simulate a Friedman data set
 friedman_data = function(n, num_cov, sd_error){
   x = matrix(runif(n*num_cov),n,num_cov)
