@@ -39,7 +39,7 @@ plot(y.test, y.test.hat); abline(0, 1)
 # Run MOTR-BART for classification
 set.seed(01)
 y = ifelse(y > median(y), 1, 0)
-y.test = ifelse(y.test > median(y), 1, 0)
+y.test = ifelse(y.test > median(y.test), 1, 0)
 fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100)
 y.test.hat = predict_motr_bart_class(fit.motr.bart, x.test, 'mean')
 cor(y.test, y.test.hat)
