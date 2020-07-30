@@ -46,7 +46,7 @@ motr_bart_class(x,
    }
 
    \item{y}{
-     Continuous response variable.
+      The response variable (continuous or binary).
    }
 
    \item{ntrees}{
@@ -101,16 +101,16 @@ Mean of the continuous covariates in the design matrix. For binary covariates, t
 Standard deviation of the continuous covariates in the design matrix. For binary covariates, the standard deviation is 1.}
 
 \item{\code{npost}}{
-Number of MCMC iterations after the burn-period. Default is 1000.}
+Number of MCMC iterations after the burn-period.}
 
 \item{\code{nburn}}{
-Number of MCMC iteration as burn-in. Default is 1000.}
+Number of MCMC iteration as burn-in}
 
 \item{\code{nthin}}{
-Amount of thinning. Default is 1.}
+Amount of thinning.}
 
 \item{\code{ntrees}}{
-Number of trees. Default is 10.}
+Number of trees.}
 
 \item{\code{y_mean}}{
 Mean of the response variable.}
@@ -146,5 +146,10 @@ yhat = apply(fit.motr.bart$y_hat, 2, mean)
 plot(y, yhat); abline(0, 1)
 
 # Run MOTR-BART for classification
+set.seed(01)
+y = ifelse(y > median(y), 1, 0)
+fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100)
+yhat = apply(fit.motr.bart$y_hat, 2, mean)
+cor(y, yhat)
 
 }

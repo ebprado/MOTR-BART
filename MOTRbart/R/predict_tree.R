@@ -74,4 +74,3 @@ predict_motr_bart_class = function(object, newdata,
   return(out)
 
 } # end of predict function
-

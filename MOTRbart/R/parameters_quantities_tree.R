@@ -137,7 +137,6 @@ get_tree_prior = function(tree, alpha, beta) {
     log_prior = log_prior + log(1 - alpha * ((1 + level[terminal_nodes[i]])^(-beta)))
   }
 
-
   return(log_prior)
 
 }
