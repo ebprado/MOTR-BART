@@ -10,8 +10,6 @@ library(devtools)
 install_github("ebprado/MOTR-BART/tree/master/MOTRbart")
 ```
 ## Example
-
-Examples
 ```
 # Simulate a Friedman data set
 friedman_data = function(n, num_cov, sd_error){
