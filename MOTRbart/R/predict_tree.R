@@ -21,7 +21,7 @@ predict_motr_bart = function(object, newdata,
     # Use get_predictions function to get predictions
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
-                                    single_tree = length(curr_trees) == 1)
+                                    single_tree = length(curr_trees) == 2)
   }
 
   # Sort out what to return
