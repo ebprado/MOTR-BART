@@ -20,10 +20,7 @@
 * checking installed package size ... OK
 * checking package directory ... OK
 * checking for future file timestamps ... OK
-* checking DESCRIPTION meta-information ... WARNING
-Non-standard license specification:
-  What license is it under?
-Standardizable: FALSE
+* checking DESCRIPTION meta-information ... OK
 * checking top-level files ... OK
 * checking for left-over files ... OK
 * checking index information ... OK
@@ -40,62 +37,23 @@ Standardizable: FALSE
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
 * checking R code for possible problems ... NOTE
-gam_bart: no visible binding for global variable ‘sd’
-gam_bart: no visible global function definition for ‘bs’
-gam_bart: no visible global function definition for ‘poly’
-gam_bart: no visible global function definition for ‘sd’
-gam_bart: no visible global function definition for ‘runif’
-motr_bart_class: no visible binding for global variable ‘sd’
-motr_bart_class: no visible global function definition for ‘sd’
-motr_bart_class: no visible global function definition for ‘pnorm’
-motr_bart_class: no visible global function definition for ‘runif’
-motr_bart_class: no visible global function definition for
-  ‘simulate_mu’
-predict_motr_bart_class: no visible global function definition for
-  ‘pnorm’
-simulate_beta: no visible global function definition for ‘rmvnorm’
-update_sigma2: no visible global function definition for ‘rgamma’
-update_z: no visible global function definition for ‘rnorm’
+gam_bart_class: no visible binding for global variable ‘X_splines’
+predict_gam_bart: no visible binding for global variable ‘str’
+predict_gam_bart: no visible global function definition for ‘predict’
 Undefined global functions or variables:
-  bs pnorm poly rgamma rmvnorm rnorm runif sd simulate_mu
+  X_splines predict str
 Consider adding
-  importFrom("stats", "pnorm", "poly", "rgamma", "rnorm", "runif", "sd")
+  importFrom("stats", "predict")
+  importFrom("utils", "str")
 to your NAMESPACE file.
-* checking Rd files ... OK
-* checking Rd metadata ... OK
-* checking Rd line widths ... OK
-* checking Rd cross-references ... OK
 * checking for missing documentation entries ... WARNING
 Undocumented code objects:
-  ‘change_tree’ ‘create_stump’ ‘fill_tree_details’ ‘gam_bart’
-  ‘get_children’ ‘get_predictions’ ‘get_tree_prior’ ‘grow_tree’
-  ‘motr_bart_class’ ‘predict_motr_bart’ ‘predict_motr_bart_class’
-  ‘prune_tree’ ‘resample’ ‘simulate_beta’ ‘swap_tree’
-  ‘tree_full_conditional’ ‘update_sigma2’ ‘update_tree’ ‘update_z’
+  ‘gam_bart’ ‘gam_bart_class’ ‘predict_gam_bart’
+  ‘predict_gam_bart_class’
 All user-level objects in a package should have documentation entries.
 See chapter ‘Writing R documentation files’ in the ‘Writing R
 Extensions’ manual.
-* checking for code/documentation mismatches ... WARNING
-Functions or methods with usage in documentation object 'hello' but not in code:
-  ‘hello’
-
-* checking Rd \usage sections ... OK
-* checking Rd contents ... OK
-* checking for unstated dependencies in examples ... OK
-* checking examples ... ERROR
-Running examples in ‘GAMbart-Ex.R’ failed
-The error most likely occurred in:
-
-> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
-> ### Name: hello
-> ### Title: Hello, World!
-> ### Aliases: hello
-> 
-> ### ** Examples
-> 
-> hello()
-Error in hello() : could not find function "hello"
-Execution halted
+* checking examples ... NONE
 * checking for detritus in the temp directory ... OK
 * DONE
-Status: 1 ERROR, 3 WARNINGs, 1 NOTE
+Status: 1 WARNING, 1 NOTE

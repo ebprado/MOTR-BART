@@ -1,13 +1,24 @@
 #' @export
 #' @importFrom mvtnorm 'rmvnorm'
-#' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm'
-#' @import splines 'bs'
+#' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'poly' 'predict'
+#' @importFrom splines 'bs'
+
+# ntrees = 10
+# node_min_size = 5
+# alpha = 0.95
+# beta = 2
+# nu = 3
+# lambda = 0.1
+# sigma2 = 1
+# nburn = 1000
+# npost = 1000
+# nthin = 1
 
 gam_bart = function(x,
                     y,
                     str = c('splines', 'original', 'poly'),
                     ntrees = 10,
-                    node_min_size = 5,
+                    node_min_size = 10,
                     alpha = 0.95,
                     beta = 2,
                     nu = 3,
@@ -108,7 +119,7 @@ gam_bart = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -134,7 +145,7 @@ gam_bart = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = y_scale -
-          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2)
+          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2)
       } else {
         current_partial_residuals = y_scale
       }
@@ -152,7 +163,7 @@ gam_bart = function(x,
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
-                                    X,
+                                    X_splines,
                                     current_partial_residuals,
                                     sigma2,
                                     V,
@@ -164,7 +175,7 @@ gam_bart = function(x,
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
-                                    X,
+                                    X_splines,
                                     current_partial_residuals,
                                     sigma2,
                                     V,
@@ -184,7 +195,7 @@ gam_bart = function(x,
 
       # Update mu whether tree accepted or not
       curr_trees[[j]] = simulate_beta(curr_trees[[j]],
-                                    X,
+                                    X_splines,
                                     current_partial_residuals,
                                     sigma2,
                                     inv_V,
@@ -194,7 +205,7 @@ gam_bart = function(x,
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
 
     S = sum((y_scale - predictions)^2)
 
@@ -225,7 +236,7 @@ gam_bart = function(x,
 
 #' @export
 
-motr_bart_class = function(x,
+gam_bart_class = function(x,
                      y,
                      ntrees = 10,
                      node_min_size = 5,
@@ -288,7 +299,7 @@ motr_bart_class = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -314,7 +325,7 @@ motr_bart_class = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = z -
-          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2)
+          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2)
       } else {
         current_partial_residuals = z
       }
@@ -363,7 +374,7 @@ motr_bart_class = function(x,
       }
 
       # Update mu whether tree accepted or not
-      curr_trees[[j]] = simulate_mu(curr_trees[[j]],
+      curr_trees[[j]] = simulate_beta(curr_trees[[j]],
                                     X,
                                     current_partial_residuals,
                                     sigma2,
@@ -374,7 +385,7 @@ motr_bart_class = function(x,
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
 
     # Update z (latent variable)
     z = update_z(y, predictions)

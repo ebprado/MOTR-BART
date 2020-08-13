@@ -79,10 +79,8 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu) {
                  mean = Lambda_node%*%(t(X_node)%*%r_node),
                  sigma = sigma2*Lambda_node)
 
-    # Put in just the ones that are useful, otherwise 0.
-    aux_beta = rep(0, ncol(X_node))
-    aux_beta[lm_vars] = beta_hat # Only variables that have been used as split
-    tree$tree_matrix[unique_node_indices[i],'beta_hat'] = paste(aux_beta, collapse = ',')
+    # Put in the esimates
+    tree$tree_matrix[unique_node_indices[i],'beta_hat'] = paste(beta_hat, collapse = ',')
   }
 
   return(tree)
