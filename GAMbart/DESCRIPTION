@@ -1,9 +1,9 @@
-Package: MOTRbart
+Package: GAMbart
 Type: Package
 Title: Bayesian Additive Regression Trees with Model Trees
 Version: 0.1.0
 Author@E: person('Estevão', 'B. Prado', email = 'estevao.prado@hotmail.com', role=c('aut', 'cre'))
-Description: This package performs Bayesian Additive Regression Trees with Model Trees (MOTR-BART) for continuous and binary outcomes. For more details about MOTR-BART, see Estevão B Prado, Rafael A Moral, Andrew C Parnell (2020). Bayesian Additive Regression Trees with Model Trees. ArXiv preprint ArXiv: 2006.07493.
+Description: This package performs Bayesian Additive Regression Trees with Generalised Additive Models (GAM-BART) for continuous and binary outcomes. For more details about GAM-BART, see...
 Author: Estevão B. Prado [aut, cre]
 Maintainer: Estevão B. Prado <estevao.prado@hotmail.com>
 License: GPL (>= 2)
