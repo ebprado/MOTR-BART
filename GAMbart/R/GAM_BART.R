@@ -46,7 +46,7 @@ gam_bart = function(x,
 
   var_names = names(X_orig)
   X_splines = list()
-  X_splines[[1]] = matrix(rep(1, nrow(X)), ncol=1)
+  X_splines[[1]] = matrix(rep(1, nrow(X_orig)), ncol=1)
   df = 1
   dg = 1
 
@@ -58,9 +58,11 @@ gam_bart = function(x,
         check_error = try(bs(X_orig[,h], df = df, degree=dg))
         if ('try-error' %in% class(check_error)){
           X_splines[[h+1]] = matrix(bs(X_orig[,h], df = 1, degree = 1), ncol = 1) # 1 knot!
+          X[,(h+1)] = X_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(X_splines)[h+1] = var_names[h]
         } else {
           X_splines[[h+1]] = matrix(bs(X_orig[,h], df = df, degree = dg), ncol = df) # df knots!
+          X[,(h+1)] = X_splines[[h+1]][,1]
           names(X_splines)[h+1] = var_names[h]
         }
       }},error = function(e) e)

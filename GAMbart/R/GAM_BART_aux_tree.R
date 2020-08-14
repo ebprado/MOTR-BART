@@ -38,10 +38,15 @@ fill_tree_details = function(curr_tree, X) {
       # If left use less than condition
       new_tree_matrix[i,'node_size'] = sum(X[node_indices == curr_parent,split_var] < split_val)
       node_indices[node_indices == curr_parent][X[node_indices == curr_parent,split_var] < split_val] = i
+      # new_tree_matrix[i,'node_size'] = sum(matrix(unlist(xsplines[split_var]), nrow=n)[node_indices == curr_parent,1] < split_val)
+      # node_indices[node_indices == curr_parent][matrix(unlist(xsplines[split_var]), nrow=n)[node_indices == curr_parent,1] < split_val] = i
+
     } else {
       # If right use greater than condition
       new_tree_matrix[i,'node_size'] = sum(X[node_indices == curr_parent,split_var] >= split_val)
       node_indices[node_indices == curr_parent][X[node_indices == curr_parent,split_var] >= split_val] = i
+      # new_tree_matrix[i,'node_size'] = sum(matrix(unlist(xsplines[split_var]), nrow=n)[node_indices == curr_parent,1] >= split_val)
+      # node_indices[node_indices == curr_parent][matrix(unlist(xsplines[split_var]), nrow=n)[node_indices == curr_parent,1] >= split_val] = i
     }
   } # End of loop through table
 
