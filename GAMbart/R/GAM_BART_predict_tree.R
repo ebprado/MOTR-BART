@@ -26,22 +26,27 @@ predict_gam_bart = function(object, traindata, newdata, str = c('splines', 'orig
   # Creating the splines
 
   if (str == 'splines'){
-    tryCatch({
-      for (h in aux_scale){
-        check_error = try(bs(traindata[,h], df = df, degree=dg))
-        if ('try-error' %in% class(check_error)){
-          X_train_splines = bs(traindata[,h], df = 1, degree=1)
-          newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = 1) # 1 knot!
-          newdata[,(h+1)] = newX_splines[[h+1]][[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
-          names(newX_splines)[h+1] = var_names[h]
-        } else {
-          X_train_splines = bs(traindata[,h], df = df, degree=dg)
-          newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = df) # df knots!
-          newdata[,(h+1)] = newX_splines[[h+1]][[h+1]][,1]
-          names(newX_splines)[h+1] = var_names[h]
-        }
-      }
-    },error = function(e) e)
+
+    for (h in aux_scale){
+      X_train_splines = bs(traindata[,h], df = 1, degree=1)
+      newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = 1) # 1 knot!
+    }
+    # tryCatch({
+    #   for (h in aux_scale){
+    #     check_error = try(bs(traindata[,h], df = df, degree=dg))
+    #     if ('try-error' %in% class(check_error)){
+    #       X_train_splines = bs(traindata[,h], df = 1, degree=1)
+    #       newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = 1) # 1 knot!
+    #       newdata[,(h+1)] = newX_splines[[h+1]][[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
+    #       names(newX_splines)[h+1] = var_names[h]
+    #     } else {
+    #       X_train_splines = bs(traindata[,h], df = df, degree=dg)
+    #       newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = df) # df knots!
+    #       newdata[,(h+1)] = newX_splines[[h+1]][[h+1]][,1]
+    #       names(newX_splines)[h+1] = var_names[h]
+    #     }
+    #   }
+    # },error = function(e) e)
   }
 
   if (str == 'original'){
