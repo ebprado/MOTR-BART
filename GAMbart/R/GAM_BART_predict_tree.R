@@ -1,5 +1,5 @@
 #' @export
-predict_gam_bart = function(object, traindata, newdata, str = c('splines', 'original', 'poly'),
+predict_gam_bart = function(object, traindata, newdata,
                          type = c('all', 'median', 'mean')) {
   # Get the means and sds to standardise the covariates from the test data
   center = object$center_x
@@ -18,9 +18,9 @@ predict_gam_bart = function(object, traindata, newdata, str = c('splines', 'orig
   var_names = names(newdata[,-1])
   newX_splines = list()
   newX_splines[[1]] = matrix(rep(1, nrow(newdata)), ncol=1)
-  df = 1
-  dg = 1
-
+  df = object$df
+  dg = object$dg
+  str = object$str
   aux_scale = which(scale > 0) # Removing columns where all values are equal
 
   # Creating the splines

@@ -17,6 +17,8 @@
 gam_bart = function(x,
                     y,
                     str = c('splines', 'original', 'poly'),
+                    df = 1,
+                    dg = 1,
                     ntrees = 10,
                     node_min_size = 10,
                     alpha = 0.95,
@@ -47,8 +49,6 @@ gam_bart = function(x,
   var_names = names(X_orig)
   X_splines = list()
   X_splines[[1]] = matrix(rep(1, nrow(X_orig)), ncol=1)
-  df = 1
-  dg = 1
 
   # Create the splines ----------------------------------------------------------------------
   if (str == 'splines'){
@@ -62,7 +62,7 @@ gam_bart = function(x,
           X[,(h+1)] = X_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(X_splines)[h+1] = var_names[h]
         } else {
-          X_splines[[h+1]] = matrix(scale(bs(X_orig[,h], df = 1, degree = 1)), ncol = 1) # df knots!
+          X_splines[[h+1]] = matrix(scale(bs(X_orig[,h], df = df, degree = dg)), ncol = df) # df knots!
           X[,(h+1)] = X_splines[[h+1]][,1]
           names(X_splines)[h+1] = var_names[h]
         }
@@ -230,7 +230,10 @@ gam_bart = function(x,
               nthin = nthin,
               ntrees = ntrees,
               y_mean = y_mean,
-              y_sd = y_sd))
+              y_sd = y_sd,
+              df = df,
+              dg = dg,
+              str = str))
 
 } # End main function
 
