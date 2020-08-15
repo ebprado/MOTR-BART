@@ -26,16 +26,15 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
   # Get the covariates that have been used as a split
   split_vars_tree <- tree$tree_matrix[which_internal, 'split_variable']
   lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
-  p = length(lm_vars)
-  inv_V = diag(p)*inv_V
   n = length(R)
 
   # Compute the log marginalised likelihood for each terminal node
   for(i in 1:length(unique_node_indices)) {
     X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
-    Lambda_node_inv = t(X_node)%*%X_node + inv_V
-    Lambda_node = solve(t(X_node)%*%X_node + inv_V)
+    invV = diag(ncol(X_node))*inv_V
+    Lambda_node_inv = t(X_node)%*%X_node + invV
+    Lambda_node = solve(t(X_node)%*%X_node + invV)
     mu_node = Lambda_node%*%((t(X_node))%*%r_node)
 
     log_post[i] = -0.5 * log(V) +
@@ -65,14 +64,13 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu) {
   # Get the covariates that have been used as a split
   split_vars_tree <- tree$tree_matrix[which_internal, 'split_variable']
   lm_vars <- c(1, sort(unique((as.numeric(split_vars_tree)))))
-  p = length(lm_vars)
-  inv_V = diag(p)*inv_V
   n = length(R)
 
   for(i in 1:length(unique_node_indices)) {
     X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
+    invV = diag(ncol(X_node))*inv_V
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
-    Lambda_node = solve(t(X_node)%*%X_node + inv_V)
+    Lambda_node = solve(t(X_node)%*%X_node + invV)
 
     # Generate betas  -------------------------------------------------
     beta_hat = rmvnorm(1,
