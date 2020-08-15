@@ -13,7 +13,10 @@
 # nburn = 1000
 # npost = 1000
 # nthin = 1
-# x = matrix(rnorm(100),ncol=5)
+# df=2
+# dg=2
+# str='splines'
+
 gam_bart = function(x,
                     y,
                     str = c('splines', 'original', 'poly'),

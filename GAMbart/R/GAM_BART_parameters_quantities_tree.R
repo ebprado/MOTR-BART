@@ -12,6 +12,9 @@
 
 # Compute the full conditionals -------------------------------------------------
 
+# tree = curr_trees[[j]]
+# xsplines= X_splines
+# R = current_partial_residuals
 tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda, tau_b) {
 
   # Select the lines that correspond to terminal and internal nodes
@@ -30,7 +33,7 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
 
   # Compute the log marginalised likelihood for each terminal node
   for(i in 1:length(unique_node_indices)) {
-    X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
+    X_node = as.matrix(matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]) # this is for when lm_vars = 1
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
     invV = diag(ncol(X_node))*inv_V
     Lambda_node_inv = t(X_node)%*%X_node + invV
@@ -67,7 +70,7 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu) {
   n = length(R)
 
   for(i in 1:length(unique_node_indices)) {
-    X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
+    X_node = as.matrix(matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],])
     invV = diag(ncol(X_node))*inv_V
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
     Lambda_node = solve(t(X_node)%*%X_node + invV)
