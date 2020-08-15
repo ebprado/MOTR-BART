@@ -66,7 +66,7 @@ predict_gam_bart = function(object, traindata, newdata,
       }
     },error = function(e) e)
   }
-print(matrix(unlist(newX_splines),nrow=nrow(newdata_orig)))
+
   # Now loop through iterations and get predictions
   for (i in 1:n_its) {
     # Get current set of trees
