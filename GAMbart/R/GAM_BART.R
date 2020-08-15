@@ -60,8 +60,8 @@ gam_bart = function(x,
 
       for (h in aux_scale){
         check_error = try(bs(X_orig[,h], df = df, degree=dg))
-        if ('try-error' %in% class(check_error)){
-          X_splines[[h+1]] = matrix(scale(bs(X_orig[,h], df = 1, degree = 1)), ncol = 1) # 1 knot!
+        if ('try-error' %in% class(check_error) || h %in% (which(unique.values.X==2)-1)){ # binary variables
+          X_splines[[h+1]] = matrix(X_orig[,h], ncol = 1) # 1 knot!
           X[,(h+1)] = X_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(X_splines)[h+1] = var_names[h]
         } else {

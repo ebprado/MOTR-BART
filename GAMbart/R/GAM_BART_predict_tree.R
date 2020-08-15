@@ -30,12 +30,8 @@ predict_gam_bart = function(object, traindata, newdata,
     tryCatch({
       for (h in aux_scale){
         check_error = try(bs(traindata[,h], df = df, degree=dg))
-        if ('try-error' %in% class(check_error)){
-          X_train_splines = bs(traindata[,h], df = 1, degree=1)
-          center = colMeans(matrix(X_train_splines, nrow=nrow(traindata)))
-          scale = apply(matrix(X_train_splines, nrow=nrow(traindata)),2,sd)
-          newX_splines[[h+1]] = matrix(scale(predict(X_train_splines, newdata_orig[,h]), center = center, scale = scale), ncol = 1) # 1 knot!
-          # newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = 1) # 1 knot!
+        if ('try-error' %in% class(check_error) || scale[h] == 1){
+          newX_splines[[h+1]] = matrix(newdata_orig[,h], ncol = 1) # 1 knot!
           newdata[,(h+1)] = newX_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(newX_splines)[h+1] = var_names[h]
         } else {
