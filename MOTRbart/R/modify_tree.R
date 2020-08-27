@@ -26,7 +26,7 @@ create_stump = function(num_trees,
   # Node parents
   # Split variable
   # Split value
-  # mu
+  # beta hat
   # Node size
 
   # Create holder for trees
@@ -51,7 +51,7 @@ create_stump = function(num_trees,
                                       'parent',
                                       'split_variable',
                                       'split_value',
-                                      'mu',
+                                      'beta_hat',
                                       'node_size')
 
     # Set values for stump

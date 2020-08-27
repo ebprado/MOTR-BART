@@ -13,7 +13,8 @@ motr_bart = function(x,
                      sigma2 = 1,
                      nburn = 1000,
                      npost = 1000,
-                     nthin = 1) {
+                     nthin = 1,
+                     str_cov = c('all covariates', 'ancestors', 'all covariates in a tree')) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -61,7 +62,7 @@ motr_bart = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+  predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, str_cov)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -87,7 +88,7 @@ motr_bart = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = y_scale -
-          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2)
+          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2, str_cov)
       } else {
         current_partial_residuals = y_scale
       }
@@ -112,7 +113,8 @@ motr_bart = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    str_cov) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
@@ -124,7 +126,8 @@ motr_bart = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    str_cov) +
         get_tree_prior(curr_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
@@ -136,18 +139,19 @@ motr_bart = function(x,
       }
 
       # Update mu whether tree accepted or not
-      curr_trees[[j]] = simulate_mu(curr_trees[[j]],
+      curr_trees[[j]] = simulate_beta(curr_trees[[j]],
                                     X,
                                     current_partial_residuals,
                                     sigma2,
                                     inv_V,
                                     tau_b,
-                                    nu)
+                                    nu,
+                                    str_cov)
 
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, str_cov)
 
     S = sum((y_scale - predictions)^2)
 
@@ -241,7 +245,7 @@ motr_bart_class = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+  predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, str_cov)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -267,7 +271,7 @@ motr_bart_class = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = z -
-          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2)
+          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2, str_cov)
       } else {
         current_partial_residuals = z
       }
@@ -327,7 +331,7 @@ motr_bart_class = function(x,
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1)
+    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, str_cov)
 
     # Update z (latent variable)
     z = update_z(y, predictions)

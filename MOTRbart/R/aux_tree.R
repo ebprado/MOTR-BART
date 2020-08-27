@@ -7,7 +7,7 @@
 # 2. get_predictions: gets the predicted values from a current set of trees
 # 3. get_children: it's a function that takes a node and, if the node is terminal, returns the node. If not, returns the children and calls the function again on the children
 # 4. resample: an auxiliar function
-
+# 5. get_ancestors:
 # Fill_tree_details -------------------------------------------------------
 
 fill_tree_details = function(curr_tree, X) {
@@ -52,7 +52,7 @@ fill_tree_details = function(curr_tree, X) {
 
 # Get predictions ---------------------------------------------------------
 
-get_predictions = function(trees, X, single_tree = FALSE) {
+get_predictions = function(trees, X, single_tree = FALSE, str_cov) {
 
   # Stop nesting problems in case of multiple trees
   if(is.null(names(trees)) & (length(trees) == 1)) trees = trees[[1]]
@@ -63,8 +63,8 @@ get_predictions = function(trees, X, single_tree = FALSE) {
     # Deal with just a single tree
     if(nrow(trees$tree_matrix) == 1) {
       # predictions = rep(trees$tree_matrix[1, 'mu'], nrow(X))
-      mu = as.numeric(unlist(strsplit(trees$tree_matrix[1, 'mu'],",")))
-      predictions = X%*%mu
+      beta_hat = as.numeric(unlist(strsplit(trees$tree_matrix[1, 'beta_hat'],",")))
+      predictions = rep(beta_hat[1], nrow(X))
 
     } else {
       # Loop through the node indices to get predictions
@@ -72,12 +72,23 @@ get_predictions = function(trees, X, single_tree = FALSE) {
       unique_node_indices = unique(trees$node_indices)
       # Get the node indices for the current X matrix
       curr_X_node_indices = fill_tree_details(trees, X)$node_indices
+      which_internal = which(trees$tree_matrix[,'terminal'] == 0)
+      split_vars_tree <- trees$tree_matrix[which_internal, 'split_variable']
+
+      if (str_cov == 'all covariates in a tree') {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
+      if (str_cov == 'all covariates') {lm_vars <- 1:ncol(X)}
+      if (str_cov == 'ancestors') {ancestors <- get_ancestors(trees)}
+
+      n = nrow(X)
+
       # Now loop through all node indices to fill in details
       for(i in 1:length(unique_node_indices)) {
-        X_node = X[curr_X_node_indices == unique_node_indices[i],]
-        mu = as.numeric(unlist(strsplit(trees$tree_matrix[unique_node_indices[i], 'mu'],",")))
-        predictions[curr_X_node_indices == unique_node_indices[i]] = X_node%*%mu
-
+        if (str_cov == 'ancestors') {
+          lm_vars = c(1, ancestors[which(ancestors[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+        }
+        X_node = matrix(X[,lm_vars], nrow=n)[curr_X_node_indices == unique_node_indices[i],]
+        beta_hat = as.numeric(unlist(strsplit(trees$tree_matrix[unique_node_indices[i], 'beta_hat'],",")))
+        predictions[curr_X_node_indices == unique_node_indices[i]] = X_node%*%beta_hat
       }
     }
     # More here to deal with more complicated trees - i.e. multiple trees
@@ -86,9 +97,9 @@ get_predictions = function(trees, X, single_tree = FALSE) {
     # Do a recursive call to the function
     partial_trees = trees
     partial_trees[[1]] = NULL # Blank out that element of the list
-    predictions = get_predictions(trees[[1]], X, single_tree = TRUE)  +
+    predictions = get_predictions(trees[[1]], X, single_tree = TRUE, str_cov)  +
       get_predictions(partial_trees, X,
-                      single_tree = length(partial_trees) == 1)
+                      single_tree = length(partial_trees) == 1, str_cov)
     #single_tree = !is.null(names(partial_trees)))
     # The above only sets single_tree to if the names of the object is not null (i.e. is a list of lists)
   }
@@ -118,3 +129,39 @@ get_children = function(tree_mat, parent) {
 # Sample function ----------------------------------------------------------
 
 resample <- function(x, ...) x[sample.int(length(x), size=1), ...]
+
+# Get ancestors of each terminal node --------------------------------------
+
+get_ancestors = function(tree){
+
+  save_ancestor = NULL
+  which_terminal = which(tree$tree_matrix[,'terminal'] == 1)
+
+  if(nrow(tree$tree_matrix) == 1) {
+    save_ancestor = cbind(terminal = NULL,
+                          ancestor = NULL)
+  } else {
+    for (k in 1:length(which_terminal)){
+      get_parent = as.numeric(as.character(tree$tree_matrix[which_terminal[k], 'parent'])) # get the 1st parent
+      get_split_var = as.numeric(as.character(tree$tree_matrix[get_parent, 'split_variable'])) # then, get the covariate associated to the row of the parent
+
+      save_ancestor = rbind(save_ancestor,
+                            cbind(terminal = which_terminal[k],
+                                  # parent   = get_parent,
+                                  ancestor = get_split_var))
+      while (get_parent > 1){
+        get_parent = as.numeric(as.character(tree$tree_matrix[get_parent,'parent'])) # then, get the subsequent parent
+        get_split_var = as.numeric(as.character(tree$tree_matrix[get_parent, 'split_variable'])) # then, get the covariate associated to the row of the new parent
+        save_ancestor = rbind(save_ancestor,
+                              cbind(terminal = which_terminal[k],
+                                    # parent   = get_parent,
+                                    ancestor = get_split_var))
+      }
+    }
+    save_ancestor = unique(save_ancestor) # remove duplicates
+    save_ancestor = save_ancestor[order(save_ancestor[,1], save_ancestor[,2]),] # sort by terminal and ancestor
+  }
+
+  return(save_ancestor)
+}
+
