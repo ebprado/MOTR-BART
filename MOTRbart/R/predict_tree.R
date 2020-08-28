@@ -1,10 +1,12 @@
 #' @export
 predict_motr_bart = function(object, newdata,
-                         type = c('all', 'median', 'mean')) {
+                         type = c('all', 'median', 'mean'), str_cov = 'ancestors') {
   # Get the means and sds to standardise the covariates from the test data
+
   center = object$center_x
   scale = object$scale_x
   newdata = as.matrix(cbind(1,scale(newdata, center=center, scale=scale)))
+  #str_cov = object$str_cov
 
   # Create holder for predicted values
   n_newX = dim(newdata)[1]
@@ -21,7 +23,8 @@ predict_motr_bart = function(object, newdata,
     # Use get_predictions function to get predictions
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
-                                    single_tree = length(curr_trees) == 2)
+                                    single_tree = length(curr_trees) == 2,
+                                    str_cov = str_cov)
   }
 
   # Sort out what to return
