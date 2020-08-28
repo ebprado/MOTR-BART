@@ -1,13 +1,12 @@
 #' @export
 predict_motr_bart = function(object, newdata,
-                         type = c('all', 'median', 'mean'),
-                         str_cov = c('all covariates', 'ancestors', 'all covariates in a tree')) {
+                         type = c('all', 'median', 'mean')) {
   # Get the means and sds to standardise the covariates from the test data
 
   center = object$center_x
   scale = object$scale_x
   newdata = as.matrix(cbind(1,scale(newdata, center=center, scale=scale)))
-  #str_cov = object$str_cov
+  str_cov = object$str_cov
 
   # Create holder for predicted values
   n_newX = dim(newdata)[1]
