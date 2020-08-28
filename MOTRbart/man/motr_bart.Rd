@@ -24,7 +24,8 @@ motr_bart(x,
           sigma2 = 1,
           nburn = 1000,
           npost = 1000,
-          nthin = 1)
+          nthin = 1,
+          str_cov = c('all covariates', 'ancestors', 'all covariates in a tree'))
 
 motr_bart_class(x,
                 y,
@@ -141,14 +142,14 @@ x = data$x
 
 # Run MOTR-BART
 set.seed(99)
-fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100)
+fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'ancestors')
 yhat = apply(fit.motr.bart$y_hat, 2, mean)
 plot(y, yhat); abline(0, 1)
 
 # Run MOTR-BART for classification
 set.seed(01)
 y = ifelse(y > median(y), 1, 0)
-fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100)
+fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'ancestors')
 yhat = apply(fit.motr.bart$y_hat, 2, mean)
 cor(y, yhat)
 

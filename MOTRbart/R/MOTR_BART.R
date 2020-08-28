@@ -172,7 +172,8 @@ motr_bart = function(x,
               nthin = nthin,
               ntrees = ntrees,
               y_mean = y_mean,
-              y_sd = y_sd))
+              y_sd = y_sd,
+              str_cov = str_cov))
 
 } # End main function
 
@@ -193,7 +194,8 @@ motr_bart_class = function(x,
                      sigma2 = 1,
                      nburn = 1000,
                      npost = 1000,
-                     nthin = 1) {
+                     nthin = 1,
+                     str_cov = c('all covariates', 'ancestors', 'all covariates in a tree')) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -296,7 +298,8 @@ motr_bart_class = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    str_cov) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
@@ -308,7 +311,8 @@ motr_bart_class = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    str_cov) +
         get_tree_prior(curr_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
@@ -320,13 +324,14 @@ motr_bart_class = function(x,
       }
 
       # Update mu whether tree accepted or not
-      curr_trees[[j]] = simulate_mu(curr_trees[[j]],
+      curr_trees[[j]] = simulate_beta(curr_trees[[j]],
                                     X,
                                     current_partial_residuals,
                                     sigma2,
                                     inv_V,
                                     tau_b,
-                                    nu)
+                                    nu,
+                                    str_cov)
 
     } # End loop through trees
 
@@ -355,7 +360,8 @@ motr_bart_class = function(x,
               nthin = nthin,
               ntrees = ntrees,
               y_mean = y_mean,
-              y_sd = y_sd))
+              y_sd = y_sd,
+              str_cov = str_cov))
 
 } # End main function
 
