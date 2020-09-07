@@ -146,6 +146,12 @@ motr_bart = function(x,
 
       if(a > runif(1)) {
         curr_trees[[j]] = new_trees[[j]]
+
+        if (type =='change'){
+          var_count[curr_trees[[j]]$var[1] - 1] = var_count[curr_trees[[j]]$var[1] - 1] - 1
+          var_count[curr_trees[[j]]$var[2] - 1] = var_count[curr_trees[[j]]$var[2] - 1] + 1
+        }
+
         if (type=='grow'){
           var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] + 1 } # -1 because of the intercept in X
 
