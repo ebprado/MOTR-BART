@@ -1,0 +1,21 @@
+* installing *source* package ‘MOTRbart’ ...
+** using staged installation
+** R
+** byte-compile and prepare package for lazy loading
+** help
+Warning: bad markup (extra space?) at motr_bart.Rd:97:18
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:131: unexpected UNKNOWN '\item'
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:131: All text must be in a section
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:132: All text must be in a section
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:132: All text must be in a section
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:132: All text must be in a section
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:134: All text must be in a section
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:135: All text must be in a section
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:135: All text must be in a section
+Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:135: All text must be in a section
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded from temporary location
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (MOTRbart)

@@ -54,7 +54,6 @@ motr_bart = function(x,
   n = length(y_scale)
   p = ncol(X_orig)
   s = rep(1/p, p)
-
   # Prior of the vectors beta
   tau_b = ntrees
   V = 1/tau_b
@@ -247,17 +246,13 @@ motr_bart_class = function(x,
   tree_store = vector('list', store_size)
   sigma2_store = rep(NA, store_size)
   y_hat_store = matrix(NA, ncol = length(y), nrow = store_size)
-  var_count = rep(0, ncol(X_orig))
-  var_count_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
-  s_prob_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
 
   # Scale the response target variable
   y_mean = mean(y)
   y_sd = sd(y)
   y_scale = (y - y_mean)/y_sd
   n = length(y_scale)
-  p = ncol(X_orig)
-  s = rep(1/p, p)
+  p = ncol(X_orig) - 1
 
   # Prior of the vectors beta
   tau_b = ntrees
@@ -293,8 +288,6 @@ motr_bart_class = function(x,
       tree_store[[curr]] = curr_trees
       sigma2_store[curr] = sigma2
       y_hat_store[curr,] = pnorm(predictions)
-      var_count_store[curr,] = var_count
-      s_prob_store[curr,] = s
     }
 
     # Start looping through trees
@@ -352,11 +345,6 @@ motr_bart_class = function(x,
       # The current tree "becomes" the new tree, if the latter is better
       if(a > runif(1)) {
         curr_trees[[j]] = new_trees[[j]]
-        if (type=='grow'){
-          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] + 1 } # -1 because of the intercept in X
-
-        if (type=='prune'){
-          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] - 1 } # -1 because of the intercept in X
       }
 
       # Update mu whether tree accepted or not
@@ -382,11 +370,6 @@ motr_bart_class = function(x,
     # Update sigma2 (variance of the residuals)
     sigma2 = update_sigma2(sum_of_squares, n = length(y_scale), nu, lambda)
 
-    # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
-    if (sparse == 'TRUE'){
-      s = update_s(var_count, p, 1)
-    }
-
   } # End iterations loop
 
   cat('\n') # Make sure progress bar ends on a new line
@@ -402,9 +385,7 @@ motr_bart_class = function(x,
               ntrees = ntrees,
               y_mean = y_mean,
               y_sd = y_sd,
-              str_cov = str_cov,
-              var_count_store = var_count_store,
-              s = s_prob_store))
+              str_cov = str_cov))
 
 } # End main function
 

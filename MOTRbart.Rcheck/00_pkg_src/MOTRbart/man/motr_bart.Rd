@@ -94,13 +94,11 @@ motr_bart_class(x,
   \item{nthin}{
      Amount of thinning that should be considered. If it is greater than 1, then only the draws every "nthin" iterations will be returned.
    }
-   \item{str_cov}{
-What covariates should be included in the linear predictors. Default is \code{str_cov = 'all covariates in a tree'}. If \code{str_cov = 'all covariates'}, then all covariates in the data set are considered in the linear predictors of all terminal nodes. If \code{str_cov = 'all covariates in a tree'}, then only those covariates that are used in the splitting rules of the corresponding tree are considered in the linear predictors. If \code{str_cov = 'ancestors'}, then only those covariates that are ancestors of the terminal nodes are used in the linear predictors.
+   \item{str_cov}
+   What covariates should be included in the linear predictors. Default is \code{str_cov = 'all covariates in a tree'}. If \code{str_cov = 'all covariates'}, then all covariates in the data set are considered in the linear predictors of all terminal nodes. If \code{str_cov = 'all covariates in a tree'}, then only those covariates that are used in the splitting rules of the corresponding tree are considered in the linear predictors. If \code{str_cov = 'ancestors'}, then only those covariates that are ancestors of the terminal nodes are used in the linear predictors.
 }
-}
-
 \value{
-The following objects are returned by the \code{motr_bart} and \code{motr_bart_class} functions. When the response variable is binary, \code{y_hat} contains the draws of the probability P(Y = 1 | x).
+  The following objects are returned by the \code{motr_bart} and \code{motr_bart_class} functions. When the response variable is binary, \code{y_hat} contains the draws of the probability P(Y = 1 | x).
 
 \item{\code{y_hat}}{
 An (npost x n) matrix with the predicted values for each MCMC iteration.}
@@ -128,14 +126,13 @@ Mean of the response variable.}
 
 \item{\code{y_sd}}{
 Standard deviation of the response variable.}
+}
 
-\item{var_count_store}{
+\item{var_count_store}
 A matrix with \code{npost} rows and p columns. It returns the total count of the number of times that the covariates are used over all trees decision rule.
-}
-\item{s}{
+
+\item{s}
 A matrix with \code{npost} rows and p columns. It returns the posterior distribution of s; see Linero (2016).
-}
-}
 
 \references{
 Prado, E. B., Moral, R. A., & Parnell, A. C. (2020). Bayesian Additive Regression Trees with Model Trees. arXiv preprint arXiv:2006.07493.
