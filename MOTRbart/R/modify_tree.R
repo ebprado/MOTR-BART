@@ -225,6 +225,7 @@ prune_tree = function(X, y, curr_tree) {
 
   # If we're back to a stump no need to call fill_tree_details
   if(nrow(new_tree$tree_matrix) == 1) {
+    new_tree$var = var_pruned_nodes
     new_tree$node_indices = rep(1, length(y))
   } else {
     # If we've removed some nodes from the middle we need to re-number all the child_left and child_right values - the parent values will still be correct
