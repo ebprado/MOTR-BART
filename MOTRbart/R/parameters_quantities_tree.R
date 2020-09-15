@@ -37,6 +37,7 @@ tree_full_conditional = function(tree, X, R, sigma2, V, inv_V, nu, lambda, tau_b
     }
     p = length(lm_vars)
     invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
+    V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
     # invV = diag(p)*inv_V
     X_node = X[curr_X_node_indices == unique_node_indices[i], lm_vars]
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
@@ -44,7 +45,7 @@ tree_full_conditional = function(tree, X, R, sigma2, V, inv_V, nu, lambda, tau_b
     Lambda_node = solve(t(X_node)%*%X_node + invV)
     mu_node = Lambda_node%*%((t(X_node))%*%r_node)
 
-    log_post[i] = -0.5 * log(det(V)) +
+    log_post[i] = -0.5 * log(det(V_)) +
       0.5*log(1/det(Lambda_node_inv)) -
       (1/(2*sigma2)) * (- t(mu_node)%*%Lambda_node_inv%*%mu_node)
 
