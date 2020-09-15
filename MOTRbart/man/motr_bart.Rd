@@ -59,7 +59,7 @@ motr_bart_class(x,
    If \code{TRUE}, then the variable selection is performed based on the Dirichlet prior as in Linero (2016). If FALSE, then the variable selection is based on a uniform prior as in the standard BART.
    }
    \item{vars_inter_slope}{
-   If \code{TRUE}, then the intercepts and the slopes are updated and penalised differently. Default is \code{FALSE}
+   If \code{TRUE}, then the intercepts and the slopes are updated and penalised differently. Default is \code{FALSE}.
    }
    \item{ntrees}{
     Number of trees. Default is 10.
