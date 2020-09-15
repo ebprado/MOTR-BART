@@ -139,6 +139,10 @@ A matrix with \code{npost} rows and p columns. It returns the total count of the
 \item{s}{
 A matrix with \code{npost} rows and p columns. It returns the posterior distribution of s; see Linero (2016).
 }
+
+\item{vars_betas}{
+A matrix with the posterior variances of the intercepts and slopes. The first column refers to the variance of the intercepts and the second one to the variance of the slopes.
+}
 }
 
 \references{

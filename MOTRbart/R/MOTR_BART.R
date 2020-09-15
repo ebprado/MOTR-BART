@@ -47,6 +47,7 @@ motr_bart = function(x,
   var_count = rep(0, ncol(X_orig))
   var_count_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
   s_prob_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
+  vars_betas_store = matrix(0, ncol = 2, nrow = store_size)
 
   # Scale the response target variable
   y_mean = mean(y)
@@ -89,6 +90,7 @@ motr_bart = function(x,
       y_hat_store[curr,] = predictions
       var_count_store[curr,] = var_count
       s_prob_store[curr,] = s
+      vars_betas_store[curr,] = V
     }
 
     # Start looping through trees
@@ -208,7 +210,8 @@ motr_bart = function(x,
               y_sd = y_sd,
               str_cov = str_cov,
               var_count_store = var_count_store,
-              s = s_prob_store))
+              s = s_prob_store,
+              vars_betas = vars_betas_store))
 
 } # End main function
 
