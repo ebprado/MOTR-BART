@@ -7,7 +7,8 @@
 # 2. get_predictions: gets the predicted values from a current set of trees
 # 3. get_children: it's a function that takes a node and, if the node is terminal, returns the node. If not, returns the children and calls the function again on the children
 # 4. resample: an auxiliar function
-# 5. get_ancestors:
+# 5. get_ancestors: get the ancestors of all terminal nodes in a tree
+# 6. update_vars_intercepts_slopes: updates the variances of the intercepts and slopes
 # Fill_tree_details -------------------------------------------------------
 
 fill_tree_details = function(curr_tree, X) {
@@ -168,4 +169,31 @@ get_ancestors = function(tree){
 update_s = function(var_count, p, alpha_s){
   s_ = rdirichlet(1, alpha_s/p + var_count)
   return(s_)
+}
+
+update_vars_intercepts_slopes <- function(trees, n_tress, sigma2, a0 = 1, b0 = 1, a1 = 1, b1 = 1){
+
+    n_terminal = 0
+    sum_of_squares_inter = 0
+    sum_of_squares_slopes = 0
+
+    for (i in 1:n_tress) {
+      # Get current set of trees
+      tree = trees[[i]]
+      # get the terminal nodes
+      terminal_nodes = as.numeric(which(tree$tree_matrix[,'terminal'] == 1))
+      # get all coefficients of the linear predictors for each terminal node
+      all_coef = strsplit(tree$tree_matrix[terminal_nodes, 'beta_hat'], ',')
+      # get intercepts
+      inter = as.numeric(unlist(lapply(all_coef, '[', 1)))
+      # get slopes
+      slopes = as.numeric(unlist(lapply(all_coef, '[', -1)))
+
+      n_terminal = n_terminal + length(terminal_nodes)
+      sum_of_squares_inter = sum_of_squares_inter + sum(inter^2)
+      sum_of_squares_slopes = sum_of_squares_slopes + sum(slopes^2)
+    }
+    return(list(var_inter = rgamma(1, (n_terminal + a0)/2, sum_of_squares_inter/sigma2 + b0),
+                var_slopes = rgamma(1, (n_terminal + a1)/2, sum_of_squares_slopes/sigma2 + b1)))
+  }
 }

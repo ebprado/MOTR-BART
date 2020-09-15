@@ -16,6 +16,7 @@ denotes the cdf of the standard Normal distribution.
 motr_bart(x,
           y,
           sparse = FALSE,
+          vars_inter_slope = FALSE,
           ntrees = 10,
           node_min_size = 5,
           alpha = 0.95,
@@ -31,6 +32,7 @@ motr_bart(x,
 motr_bart_class(x,
                 y,
                 sparse = FALSE,
+                vars_inter_slope = FALSE,
                 ntrees = 10,
                 node_min_size = 5,
                 alpha = 0.95,
@@ -54,9 +56,11 @@ motr_bart_class(x,
    }
 
    \item{sparse}{
-   If TRUE, then the variable selection is performed based on the Dirichlet prior as in Linero (2016). If FALSE, then the variable selection is based on a uniform prior as in the standard BART.
+   If \code{TRUE}, then the variable selection is performed based on the Dirichlet prior as in Linero (2016). If FALSE, then the variable selection is based on a uniform prior as in the standard BART.
    }
-
+   \item{vars_inter_slope}{
+   If \code{TRUE}, then the intercepts and the slopes are updated and penalised differently. Default is \code{FALSE}
+   }
    \item{ntrees}{
     Number of trees. Default is 10.
    }

@@ -6,6 +6,7 @@
 motr_bart = function(x,
                      y,
                      sparse = FALSE,
+                     vars_inter_slope = FALSE,
                      ntrees = 10,
                      node_min_size = 5,
                      alpha = 0.95,
@@ -55,10 +56,10 @@ motr_bart = function(x,
   p = ncol(X_orig)
   s = rep(1/p, p)
 
-  # Prior of the vectors beta
+  # Prior for the beta vector
   tau_b = ntrees
-  V = 1/tau_b
-  inv_V = tau_b
+  V = rep(1/tau_b, 2)
+  inv_V = 1/V
 
   # Create a list of trees for the initial stump
   curr_trees = create_stump(num_trees = ntrees,
@@ -179,12 +180,17 @@ motr_bart = function(x,
     # Update sigma2 (variance of the residuals)
     sigma2 = update_sigma2(sum_of_squares, n = length(y_scale), nu, lambda)
 
+    # Update sigma2_beta0 and sigma2_beta1
+    if (vars_inter_slope == 'TRUE') {
+      vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
+      V = c(vars_betas$var_inter, vars_betas$var_slopes)
+      inv_V = 1/V
+    }
+
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
     if (sparse == 'TRUE'){
       s = update_s(var_count, p, 1)
     }
-
-
   } # End iterations loop
 
   cat('\n') # Make sure progress bar ends on a new line
@@ -215,6 +221,7 @@ motr_bart = function(x,
 motr_bart_class = function(x,
                      y,
                      sparse = FALSE,
+                     vars_inter_slope = FALSE,
                      ntrees = 10,
                      node_min_size = 5,
                      alpha = 0.95,
@@ -265,10 +272,10 @@ motr_bart_class = function(x,
   p = ncol(X_orig)
   s = rep(1/p, p)
 
-  # Prior of the vectors beta
+  # Prior for the beta vector
   tau_b = ntrees
-  V = 1/tau_b
-  inv_V = tau_b
+  V = rep(1/tau_b, 2)
+  inv_V = 1/V
 
   # Initial values
   z = ifelse(y == 0, -3, 3)
@@ -384,6 +391,13 @@ motr_bart_class = function(x,
     z = update_z(y, predictions)
 
     sum_of_squares = sum((y_scale - predictions)^2)
+
+    # Update sigma2_beta0 and sigma2_beta1
+    if (vars_inter_slope == 'TRUE') {
+      vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
+      V = c(vars_betas$var_inter, vars_betas$var_slopes)
+      inv_V = 1/V
+    }
 
     # Update sigma2 (variance of the residuals)
     sigma2 = update_sigma2(sum_of_squares, n = length(y_scale), nu, lambda)
