@@ -15,8 +15,8 @@ denotes the cdf of the standard Normal distribution.
 \usage{
 motr_bart(x,
           y,
-          sparse = FALSE,
-          vars_inter_slope = FALSE,
+          sparse = TRUE,
+          vars_inter_slope = TRUE,
           ntrees = 10,
           node_min_size = 5,
           alpha = 0.95,
@@ -27,12 +27,12 @@ motr_bart(x,
           nburn = 1000,
           npost = 1000,
           nthin = 1,
-          str_cov = c('all covariates', 'ancestors', 'all covariates in a tree'))
+          ancestors = FALSE)
 
 motr_bart_class(x,
                 y,
-                sparse = FALSE,
-                vars_inter_slope = FALSE,
+                sparse = TRUE,
+                vars_inter_slope = TRUE,
                 ntrees = 10,
                 node_min_size = 5,
                 alpha = 0.95,
@@ -43,7 +43,7 @@ motr_bart_class(x,
                 nburn = 1000,
                 npost = 1000,
                 nthin = 1,
-                str_cov = c('all covariates', 'ancestors', 'all covariates in a tree'))
+                ancestors = FALSE)
 }
 
 \arguments{
@@ -56,10 +56,10 @@ motr_bart_class(x,
    }
 
    \item{sparse}{
-   If \code{TRUE}, then the variable selection is performed based on the Dirichlet prior as in Linero (2016). If FALSE, then the variable selection is based on a uniform prior as in the standard BART.
+   If \code{TRUE}, then the variable selection is performed based on the Dirichlet prior as in Linero (2016). If FALSE, then the variable selection is based on a uniform prior as in the standard BART. Default is \code{TRUE}.
    }
    \item{vars_inter_slope}{
-   If \code{TRUE}, then the intercepts and the slopes are updated and penalised differently. Default is \code{FALSE}.
+   If \code{TRUE}, then the intercepts and the slopes are updated and penalised differently. Default is \code{TRUE}.
    }
    \item{ntrees}{
     Number of trees. Default is 10.
@@ -98,8 +98,8 @@ motr_bart_class(x,
   \item{nthin}{
      Amount of thinning that should be considered. If it is greater than 1, then only the draws every "nthin" iterations will be returned.
    }
-   \item{str_cov}{
-What covariates should be included in the linear predictors. Default is \code{str_cov = 'all covariates in a tree'}. If \code{str_cov = 'all covariates'}, then all covariates in the data set are considered in the linear predictors of all terminal nodes. If \code{str_cov = 'all covariates in a tree'}, then only those covariates that are used in the splitting rules of the corresponding tree are considered in the linear predictors. If \code{str_cov = 'ancestors'}, then only those covariates that are ancestors of the terminal nodes are used in the linear predictors.
+   \item{ancestors}{
+Should the ancestors be included in the linear predictors. Default is \code{FALSE}. If \code{ancestors = TRUE}, then only those covariates that are ancestors of the terminal nodes are used in the linear predictors. If \code{ancestors = FALSE}, then only those covariates that are used in the splitting rules of the corresponding tree are considered in the linear predictors.
 }
 }
 
@@ -167,15 +167,14 @@ x = data$x
 
 # Run MOTR-BART
 set.seed(99)
-fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
+fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100)
 yhat = apply(fit.motr.bart$y_hat, 2, mean)
 plot(y, yhat); abline(0, 1)
 
 # Run MOTR-BART for classification
-set.seed(01)
-y = ifelse(y > median(y), 1, 0)
-fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
-yhat = apply(fit.motr.bart$y_hat, 2, mean)
-cor(y, yhat)
-
+# set.seed(01)
+# y = ifelse(y > median(y), 1, 0)
+# fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100)
+# yhat = apply(fit.motr.bart$y_hat, 2, mean)
+# cor(y, yhat)
 }

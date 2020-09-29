@@ -13,4 +13,4 @@ LazyData: true
 Imports: MASS, mvtnorm, statmod, stats, MCMCpack
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2020-09-07 16:43:29 UTC; estevaoprado
+Packaged: 2020-09-29 15:09:46 UTC; estevaoprado

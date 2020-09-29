@@ -6,7 +6,7 @@ predict_motr_bart = function(object, newdata,
   center = object$center_x
   scale = object$scale_x
   newdata = as.matrix(cbind(1,scale(newdata, center=center, scale=scale)))
-  str_cov = object$str_cov
+  ancestors = object$ancestors
 
   # Create holder for predicted values
   n_newX = dim(newdata)[1]
@@ -24,7 +24,7 @@ predict_motr_bart = function(object, newdata,
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
                                     single_tree = length(curr_trees) == 2,
-                                    str_cov = str_cov)
+                                    ancestors = ancestors)
   }
 
   # Sort out what to return
@@ -50,7 +50,7 @@ predict_motr_bart_class = function(object,
   center = object$center_x
   scale = object$scale_x
   newdata = as.matrix(cbind(1,scale(newdata, center=center, scale=scale)))
-  str_cov = object$str_cov
+  ancestors = object$ancestors
 
   # Create holder for predicted values
   n_newX = dim(newdata)[1]
@@ -68,7 +68,7 @@ predict_motr_bart_class = function(object,
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
                                     single_tree = length(curr_trees) == 1,
-                                    str_cov = str_cov)
+                                    ancestors = ancestors)
   }
 
   # Sort out what to return

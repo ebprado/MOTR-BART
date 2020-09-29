@@ -16,6 +16,7 @@ denotes the cdf of the standard Normal distribution.
 motr_bart(x,
           y,
           sparse = FALSE,
+          vars_inter_slope = FALSE,
           ntrees = 10,
           node_min_size = 5,
           alpha = 0.95,
@@ -26,11 +27,12 @@ motr_bart(x,
           nburn = 1000,
           npost = 1000,
           nthin = 1,
-          str_cov = c('all covariates', 'ancestors', 'all covariates in a tree'))
+          ancestors = FALSE)
 
 motr_bart_class(x,
                 y,
                 sparse = FALSE,
+                vars_inter_slope = FALSE,
                 ntrees = 10,
                 node_min_size = 5,
                 alpha = 0.95,
@@ -41,7 +43,7 @@ motr_bart_class(x,
                 nburn = 1000,
                 npost = 1000,
                 nthin = 1,
-                str_cov = c('all covariates', 'ancestors', 'all covariates in a tree'))
+                ancestors = FALSE)
 }
 
 \arguments{
@@ -54,9 +56,11 @@ motr_bart_class(x,
    }
 
    \item{sparse}{
-   If TRUE, then the variable selection is performed based on the Dirichlet prior as in Linero (2016). If FALSE, then the variable selection is based on a uniform prior as in the standard BART.
+   If \code{TRUE}, then the variable selection is performed based on the Dirichlet prior as in Linero (2016). If FALSE, then the variable selection is based on a uniform prior as in the standard BART.
    }
-
+   \item{vars_inter_slope}{
+   If \code{TRUE}, then the intercepts and the slopes are updated and penalised differently. Default is \code{FALSE}.
+   }
    \item{ntrees}{
     Number of trees. Default is 10.
    }
@@ -94,11 +98,13 @@ motr_bart_class(x,
   \item{nthin}{
      Amount of thinning that should be considered. If it is greater than 1, then only the draws every "nthin" iterations will be returned.
    }
-   \item{str_cov}
-   What covariates should be included in the linear predictors. Default is \code{str_cov = 'all covariates in a tree'}. If \code{str_cov = 'all covariates'}, then all covariates in the data set are considered in the linear predictors of all terminal nodes. If \code{str_cov = 'all covariates in a tree'}, then only those covariates that are used in the splitting rules of the corresponding tree are considered in the linear predictors. If \code{str_cov = 'ancestors'}, then only those covariates that are ancestors of the terminal nodes are used in the linear predictors.
+   \item{ancestors}{
+Should the ancestors be included in the linear predictors. Default is \code{FALSE}. If \code{ancestors = FALSE}, then only those covariates that are used in the splitting rules of the corresponding tree are considered in the linear predictors. If \code{ancestors = TRUE}, then only those covariates that are ancestors of the terminal nodes are used in the linear predictors.
 }
+}
+
 \value{
-  The following objects are returned by the \code{motr_bart} and \code{motr_bart_class} functions. When the response variable is binary, \code{y_hat} contains the draws of the probability P(Y = 1 | x).
+The following objects are returned by the \code{motr_bart} and \code{motr_bart_class} functions. When the response variable is binary, \code{y_hat} contains the draws of the probability P(Y = 1 | x).
 
 \item{\code{y_hat}}{
 An (npost x n) matrix with the predicted values for each MCMC iteration.}
@@ -126,13 +132,18 @@ Mean of the response variable.}
 
 \item{\code{y_sd}}{
 Standard deviation of the response variable.}
+
+\item{var_count_store}{
+A matrix with \code{npost} rows and p columns. It returns the total count of the number of times that the covariates are used over all trees decision rule.
+}
+\item{s}{
+A matrix with \code{npost} rows and p columns. It returns the posterior distribution of s; see Linero (2016).
 }
 
-\item{var_count_store}
-A matrix with \code{npost} rows and p columns. It returns the total count of the number of times that the covariates are used over all trees decision rule.
-
-\item{s}
-A matrix with \code{npost} rows and p columns. It returns the posterior distribution of s; see Linero (2016).
+\item{vars_betas}{
+A matrix with the posterior variances of the intercepts and slopes. The first column refers to the variance of the intercepts and the second one to the variance of the slopes.
+}
+}
 
 \references{
 Prado, E. B., Moral, R. A., & Parnell, A. C. (2020). Bayesian Additive Regression Trees with Model Trees. arXiv preprint arXiv:2006.07493.
@@ -156,14 +167,14 @@ x = data$x
 
 # Run MOTR-BART
 set.seed(99)
-fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
+fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100)
 yhat = apply(fit.motr.bart$y_hat, 2, mean)
 plot(y, yhat); abline(0, 1)
 
 # Run MOTR-BART for classification
 set.seed(01)
 y = ifelse(y > median(y), 1, 0)
-fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
+fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100)
 yhat = apply(fit.motr.bart$y_hat, 2, mean)
 cor(y, yhat)
 

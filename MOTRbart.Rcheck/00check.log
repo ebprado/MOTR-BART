@@ -16,15 +16,7 @@
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
 * checking serialization versions ... OK
-* checking whether package ‘MOTRbart’ can be installed ... WARNING
-Found the following significant warnings:
-  Warning: bad markup (extra space?) at motr_bart.Rd:97:18
-  Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:131: unexpected UNKNOWN '\item'
-  Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:131: All text must be in a section
-  Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:132: All text must be in a section
-  Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:134: All text must be in a section
-  Warning: /Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00_pkg_src/MOTRbart/man/motr_bart.Rd:135: All text must be in a section
-See ‘/Users/estevaoprado/Documents/GitHub/MOTR-BART/MOTRbart.Rcheck/00install.out’ for details.
+* checking whether package ‘MOTRbart’ can be installed ... OK
 * checking installed package size ... OK
 * checking package directory ... OK
 * checking for future file timestamps ... NOTE
@@ -45,36 +37,38 @@ unable to verify current time
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
-* checking R code for possible problems ... NOTE
-motr_bart_class: no visible binding for global variable ‘s’
-Undefined global functions or variables:
-  s
-* checking Rd files ... WARNING
-prepare_Rd: bad markup (extra space?) at motr_bart.Rd:97:18
-prepare_Rd: man/motr_bart.Rd:131: unexpected UNKNOWN '\item'
-prepare_Rd: motr_bart.Rd:131: All text must be in a section
-prepare_Rd: motr_bart.Rd:132: All text must be in a section
-prepare_Rd: motr_bart.Rd:134: All text must be in a section
-prepare_Rd: motr_bart.Rd:135: All text must be in a section
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
 * checking Rd metadata ... OK
-* checking Rd line widths ... NOTE
-Rd file 'motr_bart.Rd':
-  \examples lines wider than 100 characters:
-     fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
-     fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
-
-These lines will be truncated in the PDF manual.
+* checking Rd line widths ... OK
 * checking Rd cross-references ... OK
 * checking for missing documentation entries ... OK
 * checking for code/documentation mismatches ... WARNING
-Codoc mismatches from documentation object 'predict_motr_bart':
-predict_motr_bart_class
-  Code: function(object, newdata, type = c("all", "median", "mean"),
-                 str_cov = c("all covariates", "ancestors", "all
-                 covariates in a tree"))
-  Docs: function(object, newdata, type = c("all", "median", "mean"))
-  Argument names in code not in docs:
-    str_cov
+Codoc mismatches from documentation object 'motr_bart':
+motr_bart
+  Code: function(x, y, sparse = TRUE, vars_inter_slope = TRUE, ntrees =
+                 10, node_min_size = 5, alpha = 0.95, beta = 2, nu = 3,
+                 lambda = 0.1, sigma2 = 1, nburn = 1000, npost = 1000,
+                 nthin = 1, ancestors = FALSE)
+  Docs: function(x, y, sparse = FALSE, vars_inter_slope = FALSE, ntrees
+                 = 10, node_min_size = 5, alpha = 0.95, beta = 2, nu =
+                 3, lambda = 0.1, sigma2 = 1, nburn = 1000, npost =
+                 1000, nthin = 1, ancestors = FALSE)
+  Mismatches in argument default values:
+    Name: 'sparse' Code: TRUE Docs: FALSE
+    Name: 'vars_inter_slope' Code: TRUE Docs: FALSE
+motr_bart_class
+  Code: function(x, y, sparse = TRUE, vars_inter_slope = TRUE, ntrees =
+                 10, node_min_size = 5, alpha = 0.95, beta = 2, nu = 3,
+                 lambda = 0.1, sigma2 = 1, nburn = 1000, npost = 1000,
+                 nthin = 1, ancestors = FALSE)
+  Docs: function(x, y, sparse = FALSE, vars_inter_slope = FALSE, ntrees
+                 = 10, node_min_size = 5, alpha = 0.95, beta = 2, nu =
+                 3, lambda = 0.1, sigma2 = 1, nburn = 1000, npost =
+                 1000, nthin = 1, ancestors = FALSE)
+  Mismatches in argument default values:
+    Name: 'sparse' Code: TRUE Docs: FALSE
+    Name: 'vars_inter_slope' Code: TRUE Docs: FALSE
 
 * checking Rd \usage sections ... OK
 * checking Rd contents ... OK
@@ -104,7 +98,7 @@ The error most likely occurred in:
 > 
 > # Run MOTR-BART
 > set.seed(99)
-> fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
+> fit.motr.bart = motr_bart(x, y, ntrees = 10, nburn = 100, npost = 100)
 
   |                                                                  
   |                                                            |   0%
@@ -370,13 +364,38 @@ The error most likely occurred in:
 > # Run MOTR-BART for classification
 > set.seed(01)
 > y = ifelse(y > median(y), 1, 0)
-> fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100, str_cov = 'all covariates in a tree')
+> fit.motr.bart = motr_bart_class(x, y, ntrees = 10, nburn = 100, npost = 100)
 
   |                                                                  
-  |                                                            |   0%Error in update_tree(y = z, X = X, type = type, curr_tree = curr_trees[[j]],  : 
-  object 's' not found
+  |                                                            |   0%
+  |                                                                  
+  |                                                            |   1%
+  |                                                                  
+  |=                                                           |   1%
+  |                                                                  
+  |=                                                           |   2%
+  |                                                                  
+  |==                                                          |   3%
+  |                                                                  
+  |==                                                          |   4%
+  |                                                                  
+  |===                                                         |   5%
+  |                                                                  
+  |===                                                         |   6%
+  |                                                                  
+  |====                                                        |   6%
+  |                                                                  
+  |====                                                        |   7%
+  |                                                                  
+  |=====                                                       |   8%
+  |                                                                  
+  |=====                                                       |   9%Warning in rgamma(l * n, alpha) : NAs produced
+
+  |                                                                  
+  |======                                                      |  10%Error in sample.int(length(x), size, replace, prob) : 
+  NA in probability vector
 Calls: motr_bart_class -> update_tree -> grow_tree -> sample -> sample.int
 Execution halted
 * checking for detritus in the temp directory ... OK
 * DONE
-Status: 1 ERROR, 3 WARNINGs, 3 NOTEs
+Status: 1 ERROR, 1 WARNING, 1 NOTE

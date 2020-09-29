@@ -7,7 +7,8 @@
 # 2. get_predictions: gets the predicted values from a current set of trees
 # 3. get_children: it's a function that takes a node and, if the node is terminal, returns the node. If not, returns the children and calls the function again on the children
 # 4. resample: an auxiliar function
-# 5. get_ancestors:
+# 5. get_ancestors: get the ancestors of all terminal nodes in a tree
+# 6. update_vars_intercepts_slopes: updates the variances of the intercepts and slopes
 # Fill_tree_details -------------------------------------------------------
 
 fill_tree_details = function(curr_tree, X) {
@@ -52,7 +53,7 @@ fill_tree_details = function(curr_tree, X) {
 
 # Get predictions ---------------------------------------------------------
 
-get_predictions = function(trees, X, single_tree = FALSE, str_cov) {
+get_predictions = function(trees, X, single_tree = FALSE, ancestors) {
 
   # Stop nesting problems in case of multiple trees
   if(is.null(names(trees)) & (length(trees) == 1)) trees = trees[[1]]
@@ -75,15 +76,15 @@ get_predictions = function(trees, X, single_tree = FALSE, str_cov) {
       which_internal = which(trees$tree_matrix[,'terminal'] == 0)
       split_vars_tree <- trees$tree_matrix[which_internal, 'split_variable']
 
-      if (str_cov == 'all covariates in a tree') {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
-      if (str_cov == 'all covariates') {lm_vars <- 1:ncol(X)}
-      if (str_cov == 'ancestors') {ancestors <- get_ancestors(trees)}
+      if (ancestors == FALSE) {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
+      #if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
+      if (ancestors == TRUE) {ancestors <- get_ancestors(trees)}
 
       n = nrow(X)
 
       # Now loop through all node indices to fill in details
       for(i in 1:length(unique_node_indices)) {
-        if (str_cov == 'ancestors') {
+        if (ancestors == TRUE) {
           lm_vars = c(1, ancestors[which(ancestors[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
         }
         X_node = matrix(X[,lm_vars], nrow=n)[curr_X_node_indices == unique_node_indices[i],]
@@ -97,9 +98,9 @@ get_predictions = function(trees, X, single_tree = FALSE, str_cov) {
     # Do a recursive call to the function
     partial_trees = trees
     partial_trees[[1]] = NULL # Blank out that element of the list
-    predictions = get_predictions(trees[[1]], X, single_tree = TRUE, str_cov)  +
+    predictions = get_predictions(trees[[1]], X, single_tree = TRUE, ancestors)  +
       get_predictions(partial_trees, X,
-                      single_tree = length(partial_trees) == 1, str_cov)
+                      single_tree = length(partial_trees) == 1, ancestors)
     #single_tree = !is.null(names(partial_trees)))
     # The above only sets single_tree to if the names of the object is not null (i.e. is a list of lists)
   }
@@ -168,4 +169,32 @@ get_ancestors = function(tree){
 update_s = function(var_count, p, alpha_s){
   s_ = rdirichlet(1, alpha_s/p + var_count)
   return(s_)
+}
+
+update_vars_intercepts_slopes <- function(trees, n_tress, sigma2, a0 = 1, b0 = 1, a1 = 1, b1 = 1){
+
+    n_terminal = 0
+    n_vars_terminal = 0
+    sum_of_squares_inter = 0
+    sum_of_squares_slopes = 0
+
+    for (i in 1:n_tress) {
+      # Get current set of trees
+      tree = trees[[i]]
+      # get the terminal nodes
+      terminal_nodes = as.numeric(which(tree$tree_matrix[,'terminal'] == 1))
+      # get all coefficients of the linear predictors for each terminal node
+      all_coef = strsplit(tree$tree_matrix[terminal_nodes, 'beta_hat'], ',')
+      # get intercepts
+      inter = as.numeric(unlist(lapply(all_coef, '[', 1)))
+      # get slopes
+      slopes = as.numeric(unlist(lapply(all_coef, '[', -1)))
+
+      n_terminal = n_terminal + length(terminal_nodes)
+      n_vars_terminal = n_vars_terminal + length(slopes)
+      sum_of_squares_inter = sum_of_squares_inter + sum(inter^2)
+      sum_of_squares_slopes = sum_of_squares_slopes + sum(slopes^2)
+    }
+    return(list(var_inter = rgamma(1, (n_terminal/2) + a0, sum_of_squares_inter/sigma2 + b0),
+                var_slopes = rgamma(1, (n_vars_terminal/2) + a1, sum_of_squares_slopes/sigma2 + b1)))
 }

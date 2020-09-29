@@ -53,7 +53,7 @@ fill_tree_details = function(curr_tree, X) {
 
 # Get predictions ---------------------------------------------------------
 
-get_predictions = function(trees, X, single_tree = FALSE, str_cov) {
+get_predictions = function(trees, X, single_tree = FALSE, ancestors) {
 
   # Stop nesting problems in case of multiple trees
   if(is.null(names(trees)) & (length(trees) == 1)) trees = trees[[1]]
@@ -76,15 +76,15 @@ get_predictions = function(trees, X, single_tree = FALSE, str_cov) {
       which_internal = which(trees$tree_matrix[,'terminal'] == 0)
       split_vars_tree <- trees$tree_matrix[which_internal, 'split_variable']
 
-      if (str_cov == 'all covariates in a tree') {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
-      if (str_cov == 'all covariates') {lm_vars <- 1:ncol(X)}
-      if (str_cov == 'ancestors') {ancestors <- get_ancestors(trees)}
+      if (ancestors == FALSE) {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
+      #if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
+      if (ancestors == TRUE) {ancestors <- get_ancestors(trees)}
 
       n = nrow(X)
 
       # Now loop through all node indices to fill in details
       for(i in 1:length(unique_node_indices)) {
-        if (str_cov == 'ancestors') {
+        if (ancestors == TRUE) {
           lm_vars = c(1, ancestors[which(ancestors[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
         }
         X_node = matrix(X[,lm_vars], nrow=n)[curr_X_node_indices == unique_node_indices[i],]
@@ -98,9 +98,9 @@ get_predictions = function(trees, X, single_tree = FALSE, str_cov) {
     # Do a recursive call to the function
     partial_trees = trees
     partial_trees[[1]] = NULL # Blank out that element of the list
-    predictions = get_predictions(trees[[1]], X, single_tree = TRUE, str_cov)  +
+    predictions = get_predictions(trees[[1]], X, single_tree = TRUE, ancestors)  +
       get_predictions(partial_trees, X,
-                      single_tree = length(partial_trees) == 1, str_cov)
+                      single_tree = length(partial_trees) == 1, ancestors)
     #single_tree = !is.null(names(partial_trees)))
     # The above only sets single_tree to if the names of the object is not null (i.e. is a list of lists)
   }
