@@ -57,7 +57,7 @@ fill_tree_details = function(curr_tree, X) {
 
 # Get predictions ---------------------------------------------------------
 
-get_predictions = function(trees, X, xsplines, single_tree = FALSE) {
+get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors) {
 
   # Stop nesting problems in case of multiple trees
   if(is.null(names(trees)) & (length(trees) == 1)) trees = trees[[1]]
@@ -79,11 +79,18 @@ get_predictions = function(trees, X, xsplines, single_tree = FALSE) {
       curr_X_node_indices = fill_tree_details(trees, X)$node_indices
       which_internal = which(trees$tree_matrix[,'terminal'] == 0)
       split_vars_tree <- trees$tree_matrix[which_internal, 'split_variable']
-      lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
+      # lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
       n = nrow(X)
+
+      if (ancestors == FALSE) {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
+      #if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
+      if (ancestors == TRUE) {ancestors <- get_ancestors(trees)}
 
       # Now loop through all node indices to fill in details
       for(i in 1:length(unique_node_indices)) {
+        if (ancestors == TRUE) {
+          lm_vars = c(1, ancestors[which(ancestors[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+        }
         X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
         beta_hat = as.numeric(unlist(strsplit(trees$tree_matrix[unique_node_indices[i], 'beta_hat'],",")))
         predictions[curr_X_node_indices == unique_node_indices[i]] = X_node%*%beta_hat
@@ -96,9 +103,9 @@ get_predictions = function(trees, X, xsplines, single_tree = FALSE) {
     # Do a recursive call to the function
     partial_trees = trees
     partial_trees[[1]] = NULL # Blank out that element of the list
-    predictions = get_predictions(trees[[1]], X, xsplines, single_tree = TRUE)  +
+    predictions = get_predictions(trees[[1]], X, xsplines, single_tree = TRUE, ancestors)  +
       get_predictions(partial_trees, X, xsplines,
-                      single_tree = length(partial_trees) == 1)
+                      single_tree = length(partial_trees) == 1, ancestors)
     #single_tree = !is.null(names(partial_trees)))
     # The above only sets single_tree to if the names of the object is not null (i.e. is a list of lists)
   }
@@ -128,3 +135,71 @@ get_children = function(tree_mat, parent) {
 # Sample function ----------------------------------------------------------
 
 resample <- function(x, ...) x[sample.int(length(x), size=1), ...]
+
+# Get ancestors of each terminal node --------------------------------------
+
+get_ancestors = function(tree){
+
+  save_ancestor = NULL
+  which_terminal = which(tree$tree_matrix[,'terminal'] == 1)
+
+  if(nrow(tree$tree_matrix) == 1) {
+    save_ancestor = cbind(terminal = NULL,
+                          ancestor = NULL)
+  } else {
+    for (k in 1:length(which_terminal)){
+      get_parent = as.numeric(as.character(tree$tree_matrix[which_terminal[k], 'parent'])) # get the 1st parent
+      get_split_var = as.numeric(as.character(tree$tree_matrix[get_parent, 'split_variable'])) # then, get the covariate associated to the row of the parent
+
+      save_ancestor = rbind(save_ancestor,
+                            cbind(terminal = which_terminal[k],
+                                  # parent   = get_parent,
+                                  ancestor = get_split_var))
+      while (get_parent > 1){
+        get_parent = as.numeric(as.character(tree$tree_matrix[get_parent,'parent'])) # then, get the subsequent parent
+        get_split_var = as.numeric(as.character(tree$tree_matrix[get_parent, 'split_variable'])) # then, get the covariate associated to the row of the new parent
+        save_ancestor = rbind(save_ancestor,
+                              cbind(terminal = which_terminal[k],
+                                    # parent   = get_parent,
+                                    ancestor = get_split_var))
+      }
+    }
+    save_ancestor = unique(save_ancestor) # remove duplicates
+    save_ancestor = save_ancestor[order(save_ancestor[,1], save_ancestor[,2]),] # sort by terminal and ancestor
+  }
+
+  return(save_ancestor)
+}
+
+update_s = function(var_count, p, alpha_s){
+  s_ = rdirichlet(1, alpha_s/p + var_count)
+  return(s_)
+}
+
+update_vars_intercepts_slopes <- function(trees, n_tress, sigma2, a0 = 1, b0 = 1, a1 = 1, b1 = 1){
+
+  n_terminal = 0
+  n_vars_terminal = 0
+  sum_of_squares_inter = 0
+  sum_of_squares_slopes = 0
+
+  for (i in 1:n_tress) {
+    # Get current set of trees
+    tree = trees[[i]]
+    # get the terminal nodes
+    terminal_nodes = as.numeric(which(tree$tree_matrix[,'terminal'] == 1))
+    # get all coefficients of the linear predictors for each terminal node
+    all_coef = strsplit(tree$tree_matrix[terminal_nodes, 'beta_hat'], ',')
+    # get intercepts
+    inter = as.numeric(unlist(lapply(all_coef, '[', 1)))
+    # get slopes
+    slopes = as.numeric(unlist(lapply(all_coef, '[', -1)))
+
+    n_terminal = n_terminal + length(terminal_nodes)
+    n_vars_terminal = n_vars_terminal + length(slopes)
+    sum_of_squares_inter = sum_of_squares_inter + sum(inter^2)
+    sum_of_squares_slopes = sum_of_squares_slopes + sum(slopes^2)
+  }
+  return(list(var_inter = rgamma(1, (n_terminal/2) + a0, sum_of_squares_inter/sigma2 + b0),
+              var_slopes = rgamma(1, (n_vars_terminal/2) + a1, sum_of_squares_slopes/sigma2 + b1)))
+}

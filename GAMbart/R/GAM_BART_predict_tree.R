@@ -21,6 +21,7 @@ predict_gam_bart = function(object, traindata, newdata,
   df = object$df
   dg = object$dg
   str = object$str
+  ancestors = object$ancestors
   aux_scale = which(scale > 0) # Removing columns where all values are equal
 
   # Creating the splines
@@ -76,7 +77,8 @@ predict_gam_bart = function(object, traindata, newdata,
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
                                     newX_splines,
-                                    single_tree = length(curr_trees) == 2)
+                                    single_tree = length(curr_trees) == 2,
+                                    ancestors = ancestors)
   }
 
   # Sort out what to return
@@ -108,6 +110,7 @@ predict_gam_bart_class = function(object, newdata,
   y_hat_mat = matrix(NA, nrow = n_its,
                      ncol = nrow(newdata))
   num_tress = object$num_trees
+  ancestors = object$ancestors
 
   # Now loop through iterations and get predictions
   for (i in 1:n_its) {
@@ -117,7 +120,8 @@ predict_gam_bart_class = function(object, newdata,
     # Use get_predictions function to get predictions
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
-                                    single_tree = length(curr_trees) == 1)
+                                    single_tree = length(curr_trees) == 1,
+                                    ancestors = ancestors)
   }
 
   # Sort out what to return

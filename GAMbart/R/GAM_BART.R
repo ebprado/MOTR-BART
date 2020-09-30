@@ -19,6 +19,8 @@
 
 gam_bart = function(x,
                     y,
+                    sparse = TRUE,
+                    vars_inter_slope = TRUE,
                     str = c('splines', 'original', 'poly'),
                     df = 1,
                     dg = 1,
@@ -31,7 +33,8 @@ gam_bart = function(x,
                     sigma2 = 1,
                     nburn = 1000,
                     npost = 1000,
-                    nthin = 1) {
+                    nthin = 1,
+                    ancestors = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -105,6 +108,11 @@ gam_bart = function(x,
   tree_store = vector('list', store_size)
   sigma2_store = rep(NA, store_size)
   y_hat_store = matrix(NA, ncol = length(y), nrow = store_size)
+  var_count = rep(0, ncol(X_orig))
+  var_count_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
+  s_prob_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
+  vars_betas_store = matrix(0, ncol = 2, nrow = store_size)
+
 
   # Scale the response target variable
   y_mean = mean(y)
@@ -126,7 +134,7 @@ gam_bart = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
+  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -144,6 +152,9 @@ gam_bart = function(x,
       tree_store[[curr]] = curr_trees
       sigma2_store[curr] = sigma2
       y_hat_store[curr,] = predictions
+      var_count_store[curr,] = var_count
+      s_prob_store[curr,] = s
+      vars_betas_store[curr,] = V
     }
 
     # Start looping through trees
@@ -152,7 +163,7 @@ gam_bart = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = y_scale -
-          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2)
+          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2, ancestors)
       } else {
         current_partial_residuals = y_scale
       }
@@ -177,7 +188,8 @@ gam_bart = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    ancestors) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
@@ -189,7 +201,8 @@ gam_bart = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    ancestors) +
         get_tree_prior(curr_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
@@ -198,6 +211,17 @@ gam_bart = function(x,
       # The current tree "becomes" the new tree, if the latter is better
       if(a > runif(1)) {
         curr_trees[[j]] = new_trees[[j]]
+
+        if (type =='change'){
+          var_count[curr_trees[[j]]$var[1] - 1] = var_count[curr_trees[[j]]$var[1] - 1] - 1
+          var_count[curr_trees[[j]]$var[2] - 1] = var_count[curr_trees[[j]]$var[2] - 1] + 1
+        }
+
+        if (type=='grow'){
+          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] + 1 } # -1 because of the intercept in X
+
+        if (type=='prune'){
+          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] - 1 } # -1 because of the intercept in X
       }
 
       # Update mu whether tree accepted or not
@@ -207,18 +231,30 @@ gam_bart = function(x,
                                     sigma2,
                                     inv_V,
                                     tau_b,
-                                    nu)
+                                    nu,
+                                    ancestors)
 
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
+    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
 
     S = sum((y_scale - predictions)^2)
 
     # Update sigma2 (variance of the residuals)
     sigma2 = update_sigma2(S, n = length(y_scale), nu, lambda)
 
+    # Update sigma2_beta0 and sigma2_beta1
+    if (vars_inter_slope == 'TRUE') {
+      vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
+      V = c(vars_betas$var_inter, vars_betas$var_slopes)
+      inv_V = 1/V
+    }
+
+    # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
+    if (sparse == 'TRUE'){
+      s = update_s(var_count, p, 1)
+    }
   } # End iterations loop
 
   cat('\n') # Make sure progress bar ends on a new line
@@ -236,7 +272,8 @@ gam_bart = function(x,
               y_sd = y_sd,
               df = df,
               dg = dg,
-              str = str))
+              str = str,
+              ancestors = ancestors))
 
 } # End main function
 
@@ -285,6 +322,10 @@ gam_bart_class = function(x,
   tree_store = vector('list', store_size)
   sigma2_store = rep(NA, store_size)
   y_hat_store = matrix(NA, ncol = length(y), nrow = store_size)
+  var_count = rep(0, ncol(X_orig))
+  var_count_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
+  s_prob_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
+  vars_betas_store = matrix(0, ncol = 2, nrow = store_size)
 
   # Scale the response target variable
   y_mean = mean(y)
@@ -309,7 +350,7 @@ gam_bart_class = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
+  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -327,6 +368,9 @@ gam_bart_class = function(x,
       tree_store[[curr]] = curr_trees
       sigma2_store[curr] = sigma2
       y_hat_store[curr,] = pnorm(predictions)
+      var_count_store[curr,] = var_count
+      s_prob_store[curr,] = s
+      vars_betas_store[curr,] = V
     }
 
     # Start looping through trees
@@ -335,7 +379,7 @@ gam_bart_class = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = z -
-          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2)
+          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2, ancestors)
       } else {
         current_partial_residuals = z
       }
@@ -381,6 +425,17 @@ gam_bart_class = function(x,
       # The current tree "becomes" the new tree, if the latter is better
       if(a > runif(1)) {
         curr_trees[[j]] = new_trees[[j]]
+
+        if (type =='change'){
+          var_count[curr_trees[[j]]$var[1] - 1] = var_count[curr_trees[[j]]$var[1] - 1] - 1
+          var_count[curr_trees[[j]]$var[2] - 1] = var_count[curr_trees[[j]]$var[2] - 1] + 1
+        }
+
+        if (type=='grow'){
+          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] + 1 } # -1 because of the intercept in X
+
+        if (type=='prune'){
+          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] - 1 } # -1 because of the intercept in X
       }
 
       # Update mu whether tree accepted or not
@@ -395,7 +450,7 @@ gam_bart_class = function(x,
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1)
+    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
 
     # Update z (latent variable)
     z = update_z(y, predictions)
@@ -404,6 +459,18 @@ gam_bart_class = function(x,
 
     # Update sigma2 (variance of the residuals)
     sigma2 = update_sigma2(S, n = length(y_scale), nu, lambda)
+
+    # Update sigma2_beta0 and sigma2_beta1
+    if (vars_inter_slope == 'TRUE') {
+      vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
+      V = c(vars_betas$var_inter, vars_betas$var_slopes)
+      inv_V = 1/V
+    }
+
+    # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
+    if (sparse == 'TRUE'){
+      s = update_s(var_count, p, 1)
+    }
 
   } # End iterations loop
 
