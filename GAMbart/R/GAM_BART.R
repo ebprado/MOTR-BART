@@ -3,23 +3,23 @@
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'poly' 'predict'
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
-#'
-# ntrees = 10
-# node_min_size = 5
-# alpha = 0.95
-# beta = 2
-# nu = 3
-# lambda = 0.1
-# sigma2 = 1
-# nburn = 1000
-# npost = 1000
-# nthin = 1
-# df=2
-# dg=2
-# str='splines'
-# sparse = TRUE
-# vars_inter_slope = TRUE
-# ancestors = FALSE
+
+ntrees = 10
+node_min_size = 5
+alpha = 0.95
+beta = 2
+nu = 3
+lambda = 0.1
+sigma2 = 1
+nburn = 1000
+npost = 1000
+nthin = 1
+df=2
+dg=2
+str='splines'
+sparse = TRUE
+vars_inter_slope = TRUE
+ancestors = FALSE
 
 gam_bart = function(x,
                     y,

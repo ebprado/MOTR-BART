@@ -72,11 +72,12 @@ update_tree = function(y, # Target variable
                                 'change', # Change existing tree - change split variable and value for an internal node
                                 'swap'),  # Swap existing tree - swap splitting rules for two pairs of terminal nodes
                        curr_tree,         # The current set of trees (not required if type is stump)
-                       node_min_size) {   # The minimum size of a node to grow
+                       node_min_size,
+                       s) {   # The minimum size of a node to grow
 
   # Call the appropriate function to get the new tree
   new_tree = switch(type,
-                    grow = grow_tree(X, y, curr_tree, node_min_size),
+                    grow = grow_tree(X, y, curr_tree, node_min_size, s),
                     prune = prune_tree(X, y, curr_tree),
                     change = change_tree(X, y, curr_tree, node_min_size),
                     swap = swap_tree(X, y, curr_tree, node_min_size))
@@ -88,7 +89,7 @@ update_tree = function(y, # Target variable
 
 # Grow_tree function ------------------------------------------------------
 
-grow_tree = function(X, y, curr_tree, node_min_size) {
+grow_tree = function(X, y, curr_tree, node_min_size, s) {
 
   # Set up holder for new tree
   new_tree = curr_tree
@@ -119,7 +120,7 @@ grow_tree = function(X, y, curr_tree, node_min_size) {
                            prob = as.integer(as.numeric(terminal_node_size) > node_min_size)) # Choose which node to split, set prob to zero for any nodes that are too small
 
     # Choose a split variable uniformly from all columns (the first one is the intercept)
-    split_variable = sample(2:ncol(X), 1)
+    split_variable = sample(2:ncol(X), 1, prob = s)
 
     # Alternatively follow BARTMachine and choose a split value using sample on the internal values of the available
     available_values = sort(unique(X[new_tree$node_indices == node_to_split,
