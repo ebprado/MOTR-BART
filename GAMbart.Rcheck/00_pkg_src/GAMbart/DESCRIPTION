@@ -10,7 +10,7 @@ Maintainer: Estevão B. Prado <estevao.prado@hotmail.com>
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Imports: MASS, mvtnorm, statmod, stats
+Imports: MASS, mvtnorm, statmod, stats, MCMCpack
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2020-09-30 10:11:32 UTC; estevaoprado
+Packaged: 2020-09-30 11:49:27 UTC; estevaoprado

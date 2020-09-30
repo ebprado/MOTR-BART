@@ -3,20 +3,23 @@
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'poly' 'predict'
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
-#'
-# ntrees = 10
-# node_min_size = 5
-# alpha = 0.95
-# beta = 2
-# nu = 3
-# lambda = 0.1
-# sigma2 = 1
-# nburn = 1000
-# npost = 1000
-# nthin = 1
-# df=2
-# dg=2
-# str='splines'
+
+ntrees = 10
+node_min_size = 5
+alpha = 0.95
+beta = 2
+nu = 3
+lambda = 0.1
+sigma2 = 1
+nburn = 1000
+npost = 1000
+nthin = 1
+df=2
+dg=2
+str='splines'
+sparse = TRUE
+vars_inter_slope = TRUE
+ancestors = FALSE
 
 gam_bart = function(x,
                     y,
@@ -120,12 +123,13 @@ gam_bart = function(x,
   y_sd = sd(y)
   y_scale = (y - y_mean)/y_sd
   n = length(y_scale)
-  p = ncol(X_orig) - 1
+  p = ncol(X_orig)
+  s = rep(1/p, p)
 
   # Prior of the vectors beta
   tau_b = ntrees
-  V = 1/tau_b
-  inv_V = tau_b
+  V = rep(1/tau_b, 2)
+  inv_V = 1/V
 
   # Create a list of trees for the initial stump
   curr_trees = create_stump(num_trees = ntrees,
@@ -174,11 +178,13 @@ gam_bart = function(x,
       if(i < max(floor(0.1*nburn), 10)) type = 'grow' # Grow for the first few iterations
 
       # Generate a new tree based on the current
+
       new_trees[[j]] = update_tree(y = y_scale,
                                    X = X,
                                    type = type,
                                    curr_tree = curr_trees[[j]],
-                                   node_min_size = node_min_size)
+                                   node_min_size = node_min_size,
+                                   s = s)
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
@@ -274,7 +280,10 @@ gam_bart = function(x,
               df = df,
               dg = dg,
               str = str,
-              ancestors = ancestors))
+              ancestors = ancestors,
+              var_count_store = var_count_store,
+              s = s_prob_store,
+              vars_betas = vars_betas_store))
 
 } # End main function
 
@@ -285,21 +294,26 @@ gam_bart = function(x,
 #' @export
 
 gam_bart_class = function(x,
-                     y,
-                     ntrees = 10,
-                     node_min_size = 5,
-                     alpha = 0.95,
-                     beta = 2,
-                     nu = 3,
-                     lambda = 0.1,
-                     sigma2 = 1,
-                     nburn = 1000,
-                     npost = 1000,
-                     nthin = 1) {
+                          y,
+                          sparse = TRUE,
+                          vars_inter_slope = TRUE,
+                          str = c('splines', 'original', 'poly'),
+                          df = 1,
+                          dg = 1,
+                          ntrees = 10,
+                          node_min_size = 10,
+                          alpha = 0.95,
+                          beta = 2,
+                          nu = 3,
+                          lambda = 0.1,
+                          sigma2 = 1,
+                          nburn = 1000,
+                          npost = 1000,
+                          nthin = 1,
+                          ancestors = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
-  y = as.integer(as.factor(y)) -1
 
   aux.X = apply(X, 2, unique) # Checking how many unique values each variable has
   unique.values.X = unlist(lapply(aux.X, length))
@@ -311,6 +325,53 @@ gam_bart_class = function(x,
 
   center[which(unique.values.X==2)-1] = 0
   scale[which(unique.values.X==2)-1] = 1
+
+  aux_scale = which(scale > 0) # Removing columns where all values are equal
+
+  var_names = names(X_orig)
+  X_splines = list()
+  X_splines[[1]] = matrix(rep(1, nrow(X_orig)), ncol=1)
+
+  # Create the splines ----------------------------------------------------------------------
+  if (str == 'splines'){
+
+    tryCatch({
+
+      for (h in aux_scale){
+        check_error = try(bs(X_orig[,h], df = df, degree=dg))
+        if ('try-error' %in% class(check_error) || h %in% (which(unique.values.X==2)-1)){ # binary variables
+          X_splines[[h+1]] = matrix(X_orig[,h], ncol = 1) # 1 knot!
+          X[,(h+1)] = X_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
+          names(X_splines)[h+1] = var_names[h]
+        } else {
+          X_splines[[h+1]] = matrix(scale(bs(X_orig[,h], df = df, degree = dg)), ncol = df) # df knots!
+          X[,(h+1)] = X_splines[[h+1]][,1]
+          names(X_splines)[h+1] = var_names[h]
+        }
+      }
+    },error = function(e) e)
+  }
+
+  # Keep the (standardised) original covariates ------------------------------------------------------------
+  if (str == 'original'){
+    for (h in aux_scale){
+      X_splines[[h+1]] = as.matrix(X[,(h+1)])
+    }
+  }
+
+  # Create quadratic terms using the poly function ------------------------------------------
+  if (str == 'poly'){
+    tryCatch({
+      for (h in aux_scale){
+        check_error = try(matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig)))
+        if ('try-error' %in% class(check_error)){
+          X_splines[[h+1]] = as.matrix(X_orig[,h])
+        } else{
+          X_splines[[h+1]] = matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig))
+        }
+      }
+    },error = function(e) e)
+  }
 
   # Extract control parameters
   node_min_size = node_min_size
@@ -333,12 +394,13 @@ gam_bart_class = function(x,
   y_sd = sd(y)
   y_scale = (y - y_mean)/y_sd
   n = length(y_scale)
-  p = ncol(X_orig) - 1
+  p = ncol(X_orig)
+  s = rep(1/p, p)
 
   # Prior of the vectors beta
   tau_b = ntrees
-  V = 1/tau_b
-  inv_V = tau_b
+  V = rep(1/tau_b, 2)
+  inv_V = 1/V
 
   # Initial values
   z = ifelse(y == 0, -3, 3)
@@ -394,30 +456,33 @@ gam_bart_class = function(x,
                                    X = X,
                                    type = type,
                                    curr_tree = curr_trees[[j]],
-                                   node_min_size = node_min_size)
+                                   node_min_size = node_min_size,
+                                   s = s)
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
-                                    X,
+                                    X_splines,
                                     current_partial_residuals,
                                     sigma2,
                                     V,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    ancestors) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
-                                    X,
+                                    X_splines,
                                     current_partial_residuals,
                                     sigma2,
                                     V,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    ancestors) +
         get_tree_prior(curr_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
@@ -441,12 +506,13 @@ gam_bart_class = function(x,
 
       # Update mu whether tree accepted or not
       curr_trees[[j]] = simulate_beta(curr_trees[[j]],
-                                    X,
-                                    current_partial_residuals,
-                                    sigma2,
-                                    inv_V,
-                                    tau_b,
-                                    nu)
+                                      X_splines,
+                                      current_partial_residuals,
+                                      sigma2,
+                                      inv_V,
+                                      tau_b,
+                                      nu,
+                                      ancestors)
 
     } # End loop through trees
 
@@ -487,7 +553,12 @@ gam_bart_class = function(x,
               nthin = nthin,
               ntrees = ntrees,
               y_mean = y_mean,
-              y_sd = y_sd))
+              y_sd = y_sd,
+              str = str,
+              ancestors = ancestors,
+              var_count_store = var_count_store,
+              s = s_prob_store,
+              vars_betas = vars_betas_store))
 
 } # End main function
 

@@ -8,10 +8,16 @@
 * this is package ‘GAMbart’ version ‘0.1.0’
 * package encoding: UTF-8
 * checking package namespace information ... OK
-* checking package dependencies ... ERROR
-Namespace dependency not required: ‘MCMCpack’
-
-See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
-manual.
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking serialization versions ... OK
+* checking whether package ‘GAMbart’ can be installed ... ERROR
+Installation failed.
+See ‘/Users/estevaoprado/Documents/GitHub/MOTR-BART/GAMbart.Rcheck/00install.out’ for details.
 * DONE
 Status: 1 ERROR

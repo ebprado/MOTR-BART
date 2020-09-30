@@ -57,8 +57,8 @@ fill_tree_details = function(curr_tree, X) {
 
 # Get predictions ---------------------------------------------------------
 
-trees = curr_trees[[1]]
-xsplines = X_splines
+# trees = curr_trees[[1]]
+# xsplines = X_splines
 get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors) {
 
   # Stop nesting problems in case of multiple trees

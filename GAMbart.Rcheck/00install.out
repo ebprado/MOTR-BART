@@ -1,0 +1,9 @@
+* installing *source* package ‘GAMbart’ ...
+** using staged installation
+** R
+** byte-compile and prepare package for lazy loading
+Error in eval(exprs[i], envir) : object 'curr_trees' not found
+Error: unable to load R code in package ‘GAMbart’
+Execution halted
+ERROR: lazy loading failed for package ‘GAMbart’
+* removing ‘/Users/estevaoprado/Documents/GitHub/MOTR-BART/GAMbart.Rcheck/GAMbart’
