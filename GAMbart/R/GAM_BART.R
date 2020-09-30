@@ -182,7 +182,8 @@ gam_bart = function(x,
                                    X = X,
                                    type = type,
                                    curr_tree = curr_trees[[j]],
-                                   node_min_size = node_min_size)
+                                   node_min_size = node_min_size,
+                                   s = s)
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
@@ -278,7 +279,10 @@ gam_bart = function(x,
               df = df,
               dg = dg,
               str = str,
-              ancestors = ancestors))
+              ancestors = ancestors,
+              var_count_store = var_count_store,
+              s = s_prob_store,
+              vars_betas = vars_betas_store))
 
 } # End main function
 
@@ -289,17 +293,23 @@ gam_bart = function(x,
 #' @export
 
 gam_bart_class = function(x,
-                     y,
-                     ntrees = 10,
-                     node_min_size = 5,
-                     alpha = 0.95,
-                     beta = 2,
-                     nu = 3,
-                     lambda = 0.1,
-                     sigma2 = 1,
-                     nburn = 1000,
-                     npost = 1000,
-                     nthin = 1) {
+                          y,
+                          sparse = TRUE,
+                          vars_inter_slope = TRUE,
+                          str = c('splines', 'original', 'poly'),
+                          df = 1,
+                          dg = 1,
+                          ntrees = 10,
+                          node_min_size = 10,
+                          alpha = 0.95,
+                          beta = 2,
+                          nu = 3,
+                          lambda = 0.1,
+                          sigma2 = 1,
+                          nburn = 1000,
+                          npost = 1000,
+                          nthin = 1,
+                          ancestors = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -337,12 +347,13 @@ gam_bart_class = function(x,
   y_sd = sd(y)
   y_scale = (y - y_mean)/y_sd
   n = length(y_scale)
-  p = ncol(X_orig) - 1
+  p = ncol(X_orig)
+  s = rep(1/p, p)
 
   # Prior of the vectors beta
   tau_b = ntrees
-  V = 1/tau_b
-  inv_V = tau_b
+  V = rep(1/tau_b, 2)
+  inv_V = 1/V
 
   # Initial values
   z = ifelse(y == 0, -3, 3)
@@ -398,7 +409,8 @@ gam_bart_class = function(x,
                                    X = X,
                                    type = type,
                                    curr_tree = curr_trees[[j]],
-                                   node_min_size = node_min_size)
+                                   node_min_size = node_min_size,
+                                   s = s)
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
@@ -491,7 +503,12 @@ gam_bart_class = function(x,
               nthin = nthin,
               ntrees = ntrees,
               y_mean = y_mean,
-              y_sd = y_sd))
+              y_sd = y_sd,
+              str = str,
+              ancestors = ancestors,
+              var_count_store = var_count_store,
+              s = s_prob_store,
+              vars_betas = vars_betas_store))
 
 } # End main function
 
