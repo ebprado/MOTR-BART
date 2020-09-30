@@ -124,8 +124,8 @@ gam_bart = function(x,
 
   # Prior of the vectors beta
   tau_b = ntrees
-  V = 1/tau_b
-  inv_V = tau_b
+  V = rep(1/tau_b, 2)
+  inv_V = 1/V
 
   # Create a list of trees for the initial stump
   curr_trees = create_stump(num_trees = ntrees,
