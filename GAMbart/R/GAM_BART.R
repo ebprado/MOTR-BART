@@ -461,7 +461,7 @@ gam_bart_class = function(x,
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
-                                    X,
+                                    X_splines,
                                     current_partial_residuals,
                                     sigma2,
                                     V,
@@ -474,7 +474,7 @@ gam_bart_class = function(x,
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
-                                    X,
+                                    X_splines,
                                     current_partial_residuals,
                                     sigma2,
                                     V,
@@ -506,13 +506,13 @@ gam_bart_class = function(x,
 
       # Update mu whether tree accepted or not
       curr_trees[[j]] = simulate_beta(curr_trees[[j]],
-                                    X,
-                                    current_partial_residuals,
-                                    sigma2,
-                                    inv_V,
-                                    tau_b,
-                                    nu,
-                                    ancestors)
+                                      X_splines,
+                                      current_partial_residuals,
+                                      sigma2,
+                                      inv_V,
+                                      tau_b,
+                                      nu,
+                                      ancestors)
 
     } # End loop through trees
 
