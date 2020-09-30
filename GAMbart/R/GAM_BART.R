@@ -178,6 +178,7 @@ gam_bart = function(x,
       if(i < max(floor(0.1*nburn), 10)) type = 'grow' # Grow for the first few iterations
 
       # Generate a new tree based on the current
+
       new_trees[[j]] = update_tree(y = y_scale,
                                    X = X,
                                    type = type,

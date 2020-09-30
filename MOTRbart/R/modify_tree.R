@@ -88,6 +88,8 @@ update_tree = function(y, # Target variable
 
 } # End of update_tree function
 
+
+
 # Grow_tree function ------------------------------------------------------
 
 grow_tree = function(X, y, curr_tree, node_min_size, s) {
