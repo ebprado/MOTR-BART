@@ -422,7 +422,8 @@ gam_bart_class = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    ancestors) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
@@ -434,7 +435,8 @@ gam_bart_class = function(x,
                                     inv_V,
                                     nu,
                                     lambda,
-                                    tau_b) +
+                                    tau_b,
+                                    ancestors) +
         get_tree_prior(curr_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
@@ -463,7 +465,8 @@ gam_bart_class = function(x,
                                     sigma2,
                                     inv_V,
                                     tau_b,
-                                    nu)
+                                    nu,
+                                    ancestors)
 
     } # End loop through trees
 
