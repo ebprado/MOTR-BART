@@ -2,7 +2,8 @@
 #' @importFrom mvtnorm 'rmvnorm'
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'poly' 'predict'
 #' @importFrom splines 'bs'
-
+#' @importFrom MCMCpack 'rdirichlet'
+#'
 # ntrees = 10
 # node_min_size = 5
 # alpha = 0.95
