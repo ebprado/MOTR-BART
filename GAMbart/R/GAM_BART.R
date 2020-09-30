@@ -314,7 +314,6 @@ gam_bart_class = function(x,
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
-  y = as.integer(as.factor(y)) -1
 
   aux.X = apply(X, 2, unique) # Checking how many unique values each variable has
   unique.values.X = unlist(lapply(aux.X, length))
@@ -326,6 +325,53 @@ gam_bart_class = function(x,
 
   center[which(unique.values.X==2)-1] = 0
   scale[which(unique.values.X==2)-1] = 1
+
+  aux_scale = which(scale > 0) # Removing columns where all values are equal
+
+  var_names = names(X_orig)
+  X_splines = list()
+  X_splines[[1]] = matrix(rep(1, nrow(X_orig)), ncol=1)
+
+  # Create the splines ----------------------------------------------------------------------
+  if (str == 'splines'){
+
+    tryCatch({
+
+      for (h in aux_scale){
+        check_error = try(bs(X_orig[,h], df = df, degree=dg))
+        if ('try-error' %in% class(check_error) || h %in% (which(unique.values.X==2)-1)){ # binary variables
+          X_splines[[h+1]] = matrix(X_orig[,h], ncol = 1) # 1 knot!
+          X[,(h+1)] = X_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
+          names(X_splines)[h+1] = var_names[h]
+        } else {
+          X_splines[[h+1]] = matrix(scale(bs(X_orig[,h], df = df, degree = dg)), ncol = df) # df knots!
+          X[,(h+1)] = X_splines[[h+1]][,1]
+          names(X_splines)[h+1] = var_names[h]
+        }
+      }
+    },error = function(e) e)
+  }
+
+  # Keep the (standardised) original covariates ------------------------------------------------------------
+  if (str == 'original'){
+    for (h in aux_scale){
+      X_splines[[h+1]] = as.matrix(X[,(h+1)])
+    }
+  }
+
+  # Create quadratic terms using the poly function ------------------------------------------
+  if (str == 'poly'){
+    tryCatch({
+      for (h in aux_scale){
+        check_error = try(matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig)))
+        if ('try-error' %in% class(check_error)){
+          X_splines[[h+1]] = as.matrix(X_orig[,h])
+        } else{
+          X_splines[[h+1]] = matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig))
+        }
+      }
+    },error = function(e) e)
+  }
 
   # Extract control parameters
   node_min_size = node_min_size
