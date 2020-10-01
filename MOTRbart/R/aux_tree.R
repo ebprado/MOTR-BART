@@ -195,6 +195,6 @@ update_vars_intercepts_slopes <- function(trees, n_tress, sigma2, a0 = 1, b0 = 1
       sum_of_squares_inter = sum_of_squares_inter + sum(inter^2)
       sum_of_squares_slopes = sum_of_squares_slopes + sum(slopes^2)
     }
-    return(list(var_inter = rgamma(1, (n_terminal/2) + a0, sum_of_squares_inter/sigma2 + b0),
-                var_slopes = rgamma(1, (n_vars_terminal/2) + a1, sum_of_squares_slopes/sigma2 + b1)))
+    return(list(var_inter = rgamma(1, (n_terminal/2) + a0, sum_of_squares_inter/(2*sigma2) + b0),
+                var_slopes = rgamma(1, (n_vars_terminal/2) + a1, sum_of_squares_slopes/(2*sigma2) + b1)))
 }
