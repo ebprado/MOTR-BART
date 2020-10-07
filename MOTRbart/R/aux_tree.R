@@ -9,6 +9,7 @@
 # 4. resample: an auxiliar function
 # 5. get_ancestors: get the ancestors of all terminal nodes in a tree
 # 6. update_vars_intercepts_slopes: updates the variances of the intercepts and slopes
+
 # Fill_tree_details -------------------------------------------------------
 
 fill_tree_details = function(curr_tree, X) {

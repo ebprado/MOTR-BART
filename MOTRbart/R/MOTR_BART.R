@@ -436,4 +436,3 @@ motr_bart_class = function(x,
               s = s_prob_store))
 
 } # End main function
-
