@@ -4,28 +4,28 @@
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
 
-ntrees = 10
-node_min_size = 5
-alpha = 0.95
-beta = 2
-nu = 3
-lambda = 0.1
-sigma2 = 1
-nburn = 1000
-npost = 1000
-nthin = 1
-df=2
-dg=2
-str='splines'
-sparse = TRUE
-vars_inter_slope = TRUE
-ancestors = FALSE
+# ntrees = 10
+# node_min_size = 5
+# alpha = 0.95
+# beta = 2
+# nu = 3
+# lambda = 0.1
+# sigma2 = 1
+# nburn = 1000
+# npost = 1000
+# nthin = 1
+# df=2
+# dg=2
+# str='splines'
+# sparse = TRUE
+# vars_inter_slope = TRUE
+# ancestors = FALSE
 
 gam_bart = function(x,
                     y,
                     sparse = TRUE,
                     vars_inter_slope = TRUE,
-                    str = c('splines', 'original', 'poly'),
+                    str = c('splines', 'original'),
                     df = 1,
                     dg = 1,
                     ntrees = 10,
@@ -85,20 +85,6 @@ gam_bart = function(x,
     for (h in aux_scale){
       X_splines[[h+1]] = as.matrix(X[,(h+1)])
     }
-  }
-
-  # Create quadratic terms using the poly function ------------------------------------------
-  if (str == 'poly'){
-    tryCatch({
-      for (h in aux_scale){
-        check_error = try(matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig)))
-        if ('try-error' %in% class(check_error)){
-          X_splines[[h+1]] = as.matrix(X_orig[,h])
-        } else{
-          X_splines[[h+1]] = matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig))
-        }
-      }
-    },error = function(e) e)
   }
 
   # Extract control parameters
@@ -297,7 +283,7 @@ gam_bart_class = function(x,
                           y,
                           sparse = TRUE,
                           vars_inter_slope = TRUE,
-                          str = c('splines', 'original', 'poly'),
+                          str = c('splines', 'original'),
                           df = 1,
                           dg = 1,
                           ntrees = 10,
@@ -357,20 +343,6 @@ gam_bart_class = function(x,
     for (h in aux_scale){
       X_splines[[h+1]] = as.matrix(X[,(h+1)])
     }
-  }
-
-  # Create quadratic terms using the poly function ------------------------------------------
-  if (str == 'poly'){
-    tryCatch({
-      for (h in aux_scale){
-        check_error = try(matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig)))
-        if ('try-error' %in% class(check_error)){
-          X_splines[[h+1]] = as.matrix(X_orig[,h])
-        } else{
-          X_splines[[h+1]] = matrix(poly(X_orig[,h], degree=2, raw=TRUE), nrow=nrow(X_orig))
-        }
-      }
-    },error = function(e) e)
   }
 
   # Extract control parameters
