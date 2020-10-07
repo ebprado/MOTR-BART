@@ -4,22 +4,22 @@
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
 
-# ntrees = 10
-# node_min_size = 5
-# alpha = 0.95
-# beta = 2
-# nu = 3
-# lambda = 0.1
-# sigma2 = 1
-# nburn = 1000
-# npost = 1000
-# nthin = 1
-# df=2
-# dg=2
-# str='splines'
-# sparse = TRUE
-# vars_inter_slope = TRUE
-# ancestors = FALSE
+ntrees = 10
+node_min_size = 5
+alpha = 0.95
+beta = 2
+nu = 3
+lambda = 0.1
+sigma2 = 1
+nburn = 1000
+npost = 1000
+nthin = 1
+df=2
+dg=2
+str='splines'
+sparse = TRUE
+vars_inter_slope = TRUE
+ancestors = TRUE
 
 gam_bart = function(x,
                     y,
@@ -102,7 +102,6 @@ gam_bart = function(x,
   var_count_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
   s_prob_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
   vars_betas_store = matrix(0, ncol = 2, nrow = store_size)
-
 
   # Scale the response target variable
   y_mean = mean(y)

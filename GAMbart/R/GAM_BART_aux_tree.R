@@ -86,12 +86,12 @@ get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors) {
 
       if (ancestors == FALSE) {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
       #if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
-      if (ancestors == TRUE) {ancestors <- get_ancestors(trees)}
+      if (ancestors == TRUE) {get_ancs <- get_ancestors(trees)}
 
       # Now loop through all node indices to fill in details
       for(i in 1:length(unique_node_indices)) {
         if (ancestors == TRUE) {
-          lm_vars = c(1, ancestors[which(ancestors[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+          lm_vars = c(1, get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
         }
         X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
         beta_hat = as.numeric(unlist(strsplit(trees$tree_matrix[unique_node_indices[i], 'beta_hat'],",")))
