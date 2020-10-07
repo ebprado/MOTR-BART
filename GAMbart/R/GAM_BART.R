@@ -73,6 +73,10 @@ gam_bart = function(x,
           names(X_splines)[h+1] = var_names[h]
         } else {
           X_splines[[h+1]] = matrix(scale(bs(X_orig[,h], df = df, degree = dg)), ncol = df) # df knots!
+          sd_scaled_splines = apply(X_splines[[h+1]], 2, sd)
+          if (any(is.na(sd_scaled_splines)) == TRUE) {
+            X_splines[[h+1]][,which(is.na(sd_scaled_splines))] = 0
+          }
           X[,(h+1)] = X_splines[[h+1]][,1]
           names(X_splines)[h+1] = var_names[h]
         }
