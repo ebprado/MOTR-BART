@@ -34,12 +34,12 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
 
   if (ancestors == FALSE) {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
   # if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
-  if (ancestors == TRUE) {ancestors <- get_ancestors(tree)}
+  if (ancestors == TRUE) {get_ancs <- get_ancestors(tree)}
 
   # Compute the log marginalised likelihood for each terminal node
   for(i in 1:length(unique_node_indices)) {
     if (ancestors == TRUE) {
-      lm_vars = c(1, ancestors[which(ancestors[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+      lm_vars = c(1, get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
     }
 
     X_node = as.matrix(matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]) # this is for when lm_vars = 1
@@ -82,12 +82,12 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors)
   #lm_vars <- c(1, sort(unique((as.numeric(split_vars_tree)))))
   if (ancestors == FALSE) {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
   # if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
-  if (ancestors == TRUE) {ancestors <- get_ancestors(tree)}
+  if (ancestors == TRUE) {get_ancs <- get_ancestors(tree)}
   n = length(R)
 
   for(i in 1:length(unique_node_indices)) {
     if (ancestors == TRUE) {
-      lm_vars = c(1, ancestors[which(ancestors[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+      lm_vars = c(1, get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
     }
     X_node = as.matrix(matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],])
     p = ncol(X_node)
