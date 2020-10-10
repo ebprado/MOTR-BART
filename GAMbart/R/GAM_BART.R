@@ -38,7 +38,8 @@ gam_bart = function(x,
                     nburn = 1000,
                     npost = 1000,
                     nthin = 1,
-                    ancestors = FALSE) {
+                    ancestors = FALSE,
+                    one_var_per_tree = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -115,6 +116,12 @@ gam_bart = function(x,
   p = ncol(X_orig)
   s = rep(1/p, p)
 
+  # If the one_var_per_tree = TRUE, then the number of trees is the number of covariates in the data set
+
+  if (one_var_per_tree == TRUE){
+    ntrees = ncol(X_orig)
+  }
+
   # Prior of the vectors beta
   tau_b = ntrees
   V = rep(1/tau_b, 2)
@@ -163,7 +170,12 @@ gam_bart = function(x,
       }
 
       # Propose a new tree via grow/change/prune/swap
-      type = sample(c('grow', 'prune', 'change', 'swap'), 1)
+
+      if (one_var_per_tree == TRUE)
+        {type = sample(c('grow', 'prune'), 1)}
+      else
+        {type = sample(c('grow', 'prune', 'change', 'swap'), 1)}
+
       if(i < max(floor(0.1*nburn), 10)) type = 'grow' # Grow for the first few iterations
 
       # Generate a new tree based on the current
@@ -173,7 +185,9 @@ gam_bart = function(x,
                                    type = type,
                                    curr_tree = curr_trees[[j]],
                                    node_min_size = node_min_size,
-                                   s = s)
+                                   s = s,
+                                   index_tree = j,
+                                   one_var_per_tree = one_var_per_tree)
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],

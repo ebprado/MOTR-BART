@@ -73,13 +73,15 @@ update_tree = function(y, # Target variable
                                 'swap'),  # Swap existing tree - swap splitting rules for two pairs of terminal nodes
                        curr_tree,         # The current set of trees (not required if type is stump)
                        node_min_size,
-                       s) {   # The minimum size of a node to grow
+                       s,
+                       index_tree,
+                       one_var_per_tree) {   # The minimum size of a node to grow
 
   # Call the appropriate function to get the new tree
   new_tree = switch(type,
-                    grow = grow_tree(X, y, curr_tree, node_min_size, s),
+                    grow = grow_tree(X, y, curr_tree, node_min_size, s, index_tree, one_var_per_tree),
                     prune = prune_tree(X, y, curr_tree),
-                    change = change_tree(X, y, curr_tree, node_min_size),
+                    change = change_tree(X, y, curr_tree, node_min_size, s, index_tree, one_var_per_tree),
                     swap = swap_tree(X, y, curr_tree, node_min_size))
 
   # Return the new tree
@@ -89,7 +91,7 @@ update_tree = function(y, # Target variable
 
 # Grow_tree function ------------------------------------------------------
 
-grow_tree = function(X, y, curr_tree, node_min_size, s) {
+grow_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_per_tree) {
 
   # Set up holder for new tree
   new_tree = curr_tree
@@ -120,7 +122,11 @@ grow_tree = function(X, y, curr_tree, node_min_size, s) {
                            prob = as.integer(as.numeric(terminal_node_size) > node_min_size)) # Choose which node to split, set prob to zero for any nodes that are too small
 
     # Choose a split variable uniformly from all columns (the first one is the intercept)
-    split_variable = sample(2:ncol(X), 1, prob = s)
+    if (one_var_per_tree == TRUE)
+    {split_variable = index_tree + 1}
+    else
+    {split_variable = sample(2:ncol(X), 1, prob = s)}
+
 
     # Alternatively follow BARTMachine and choose a split value using sample on the internal values of the available
     available_values = sort(unique(X[new_tree$node_indices == node_to_split,
@@ -245,7 +251,7 @@ prune_tree = function(X, y, curr_tree) {
 
 # change_tree function ----------------------------------------------------
 
-change_tree = function(X, y, curr_tree, node_min_size) {
+change_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_per_tree) {
 
   # Change a node means change out the split value and split variable of an internal node. Need to make sure that this does now produce a bad tree (i.e. zero terminal nodes)
 
@@ -282,7 +288,10 @@ change_tree = function(X, y, curr_tree, node_min_size) {
 
     available_values = NULL
 
-    new_split_variable = sample(2:ncol(X), 1)
+    if (one_var_per_tree == TRUE)
+    {new_split_variable = index_tree + 1}
+    else
+    {new_split_variable = sample(2:ncol(X), 1, prob = s)}
 
     available_values = sort(unique(X[use_node_indices,
                                      new_split_variable]))
