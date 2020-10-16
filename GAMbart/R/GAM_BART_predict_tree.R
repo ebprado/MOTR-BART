@@ -92,7 +92,6 @@ predict_gam_bart = function(object, traindata, newdata,
 
 } # end of predict function
 
-
 ########################################################################################################
 # Predictions for classification
 ########################################################################################################
@@ -106,6 +105,7 @@ predict_gam_bart_class = function(object, newdata,
   newdata = as.matrix(cbind(1,scale(newdata, center=center, scale=scale)))
 
   # Create holder for predicted values
+  remove_intercept = object$remove_intercept
   n_newX = dim(newdata)[1]
   n_its = object$npost
   y_hat_mat = matrix(NA, nrow = n_its,
@@ -122,7 +122,8 @@ predict_gam_bart_class = function(object, newdata,
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
                                     single_tree = length(curr_trees) == 1,
-                                    ancestors = ancestors)
+                                    ancestors = ancestors,
+                                    remove_intercept = remove_intercept)
   }
 
   # Sort out what to return

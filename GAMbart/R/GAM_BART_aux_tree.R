@@ -59,7 +59,7 @@ fill_tree_details = function(curr_tree, X) {
 
 # trees = curr_trees[[1]]
 # xsplines = X_splines
-get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors) {
+get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors, remove_intercept) {
 
   # Stop nesting problems in case of multiple trees
   if(is.null(names(trees)) & (length(trees) == 1)) trees = trees[[1]]
@@ -84,14 +84,25 @@ get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors) {
       # lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
       n = nrow(X)
 
-      if (ancestors == FALSE) {lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))}
-      #if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
+      if (ancestors == FALSE) {
+        if(remove_intercept == FALSE){
+          lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
+        } else {
+          lm_vars <- c(sort(unique(as.numeric(split_vars_tree))))
+        }
+
+      }
+      # if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
       if (ancestors == TRUE) {get_ancs <- get_ancestors(trees)}
 
-      # Now loop through all node indices to fill in details
+      # Compute the log marginalised likelihood for each terminal node
       for(i in 1:length(unique_node_indices)) {
         if (ancestors == TRUE) {
-          lm_vars = c(1, get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+          if(remove_intercept == FALSE){
+            lm_vars = c(1, get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+          } else {
+            lm_vars = c(get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+          }
         }
         X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
         beta_hat = as.numeric(unlist(strsplit(trees$tree_matrix[unique_node_indices[i], 'beta_hat'],",")))
@@ -105,9 +116,9 @@ get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors) {
     # Do a recursive call to the function
     partial_trees = trees
     partial_trees[[1]] = NULL # Blank out that element of the list
-    predictions = get_predictions(trees[[1]], X, xsplines, single_tree = TRUE, ancestors)  +
+    predictions = get_predictions(trees[[1]], X, xsplines, single_tree = TRUE, ancestors, remove_intercept)  +
       get_predictions(partial_trees, X, xsplines,
-                      single_tree = length(partial_trees) == 1, ancestors)
+                      single_tree = length(partial_trees) == 1, ancestors, remove_intercept)
     #single_tree = !is.null(names(partial_trees)))
     # The above only sets single_tree to if the names of the object is not null (i.e. is a list of lists)
   }

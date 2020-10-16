@@ -39,7 +39,8 @@ gam_bart = function(x,
                     npost = 1000,
                     nthin = 1,
                     ancestors = FALSE,
-                    one_var_per_tree = FALSE) {
+                    one_var_per_tree = FALSE,
+                    remove_intercept = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -135,7 +136,7 @@ gam_bart = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
+  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors, remove_intercept)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -164,7 +165,7 @@ gam_bart = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = y_scale -
-          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2, ancestors)
+          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2, ancestors, remove_intercept)
       } else {
         current_partial_residuals = y_scale
       }
@@ -199,7 +200,8 @@ gam_bart = function(x,
                                     nu,
                                     lambda,
                                     tau_b,
-                                    ancestors) +
+                                    ancestors,
+                                    remove_intercept) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
@@ -212,7 +214,8 @@ gam_bart = function(x,
                                     nu,
                                     lambda,
                                     tau_b,
-                                    ancestors) +
+                                    ancestors,
+                                    remove_intercept) +
         get_tree_prior(curr_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
@@ -242,12 +245,13 @@ gam_bart = function(x,
                                     inv_V,
                                     tau_b,
                                     nu,
-                                    ancestors)
+                                    ancestors,
+                                    remove_intercept)
 
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
+    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors, remove_intercept)
 
     S = sum((y_scale - predictions)^2)
 
@@ -286,7 +290,8 @@ gam_bart = function(x,
               ancestors = ancestors,
               var_count_store = var_count_store,
               s = s_prob_store,
-              vars_betas = vars_betas_store))
+              vars_betas = vars_betas_store,
+              remove_intercept = remove_intercept))
 
 } # End main function
 
@@ -313,7 +318,8 @@ gam_bart_class = function(x,
                           nburn = 1000,
                           npost = 1000,
                           nthin = 1,
-                          ancestors = FALSE) {
+                          ancestors = FALSE,
+                          remove_intercept = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -402,7 +408,7 @@ gam_bart_class = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
+  predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors, remove_intercept)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -431,7 +437,7 @@ gam_bart_class = function(x,
       # Calculate partial residuals for current tree
       if(ntrees > 1) {
         current_partial_residuals = z -
-          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2, ancestors)
+          get_predictions(curr_trees[-j], X, X_splines, single_tree = ntrees == 2, ancestors, remove_intercept)
       } else {
         current_partial_residuals = z
       }
@@ -506,7 +512,7 @@ gam_bart_class = function(x,
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors)
+    predictions = get_predictions(curr_trees, X, X_splines, single_tree = ntrees == 1, ancestors, remove_intercept)
 
     # Update z (latent variable)
     z = update_z(y, predictions)
@@ -547,7 +553,8 @@ gam_bart_class = function(x,
               ancestors = ancestors,
               var_count_store = var_count_store,
               s = s_prob_store,
-              vars_betas = vars_betas_store))
+              vars_betas = vars_betas_store,
+              remove_intercept = remove_intercept))
 
 } # End main function
 
