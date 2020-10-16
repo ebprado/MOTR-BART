@@ -78,7 +78,7 @@ predict_gam_bart = function(object, traindata, newdata,
     y_hat_mat[i,] = get_predictions(curr_trees,
                                     newdata,
                                     newX_splines,
-                                    single_tree = length(curr_trees) == 2,
+                                    single_tree = length(curr_trees) == 1,
                                     ancestors = ancestors)
   }
 
