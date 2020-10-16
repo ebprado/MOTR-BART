@@ -2,6 +2,7 @@
 predict_gam_bart = function(object, traindata, newdata,
                          type = c('all', 'median', 'mean')) {
   # Get the means and sds to standardise the covariates from the test data
+  remove_intercept = object$remove_intercept
   center = object$center_x
   scale = object$scale_x
   newdata_orig = newdata
@@ -79,7 +80,8 @@ predict_gam_bart = function(object, traindata, newdata,
                                     newdata,
                                     newX_splines,
                                     single_tree = length(curr_trees) == 1,
-                                    ancestors = ancestors)
+                                    ancestors = ancestors,
+                                    remove_intercept)
   }
 
   # Sort out what to return

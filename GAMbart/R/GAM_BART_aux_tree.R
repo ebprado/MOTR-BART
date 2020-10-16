@@ -80,28 +80,29 @@ get_predictions = function(trees, X, xsplines, single_tree = FALSE, ancestors, r
       # Get the node indices for the current X matrix
       curr_X_node_indices = fill_tree_details(trees, X)$node_indices
       which_internal = which(trees$tree_matrix[,'terminal'] == 0)
+      which_terminal = which(trees$tree_matrix[,'terminal'] == 1)
       split_vars_tree <- trees$tree_matrix[which_internal, 'split_variable']
       # lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
       n = nrow(X)
 
       if (ancestors == FALSE) {
-        if(remove_intercept == FALSE){
-          lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
-        } else {
+        if(remove_intercept == TRUE && length(which_terminal) > 1){ # a root node tree has to have an intercept
           lm_vars <- c(sort(unique(as.numeric(split_vars_tree))))
+        } else {
+          lm_vars <- c(1, sort(unique(as.numeric(split_vars_tree))))
         }
-
       }
+
       # if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
       if (ancestors == TRUE) {get_ancs <- get_ancestors(trees)}
 
       # Compute the log marginalised likelihood for each terminal node
       for(i in 1:length(unique_node_indices)) {
         if (ancestors == TRUE) {
-          if(remove_intercept == FALSE){
-            lm_vars = c(1, get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
-          } else {
+          if(remove_intercept == TRUE && length(which_terminal) > 1){
             lm_vars = c(get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
+          } else {
+            lm_vars = c(1, get_ancs[which(get_ancs[,'terminal'] == unique_node_indices[i]), 'ancestor']) # Get the corresponding ancestors of the current terminal node
           }
         }
         X_node = matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],]
