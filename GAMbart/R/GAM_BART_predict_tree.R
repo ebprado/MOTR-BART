@@ -1,6 +1,6 @@
 #' @export
 predict_gam_bart = function(object, traindata, newdata,
-                         type = c('all', 'median', 'mean')) {
+                         type = c('all', 'median', 'mean'), test = FALSE) {
   # Get the means and sds to standardise the covariates from the test data
   remove_intercept = object$remove_intercept
   center = object$center_x
@@ -56,18 +56,9 @@ predict_gam_bart = function(object, traindata, newdata,
     }
   }
 
-  if (str == 'poly'){
-    tryCatch({
-      for (h in aux_scale){
-        check_error = try(matrix(poly(traindata[,h], degree=2, raw=TRUE), nrow=nrow(traindata)))
-        if ('try-error' %in% class(check_error)){
-          newX_splines[[h+1]] = as.matrix(newdata[,(h+1)])
-        } else {
-          x_train_splines = poly(traindata[,h], degree=2, raw=TRUE)
-          newX_splines[[h+1]] = predict(x_train_splines, newdata[,(h+1)])
-        }
-      }
-    },error = function(e) e)
+  if (test == TRUE){
+    newX_splines[[2]] = newdata_orig
+    newdata[,2] = newdata_orig[,1]
   }
 
   # Now loop through iterations and get predictions

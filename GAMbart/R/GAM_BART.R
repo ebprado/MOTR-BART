@@ -78,8 +78,8 @@ gam_bart = function(x,
   }
 
   if (test == TRUE){
-    X_splines[[2]] = x
-    X[,2] = x[,1]
+    X_splines[[2]] = X_orig
+    X[,2] = X_orig[,1]
   }
 
   # Extract control parameters
