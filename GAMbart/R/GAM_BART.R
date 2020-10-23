@@ -4,23 +4,6 @@
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
 
-# ntrees = 10
-# node_min_size = 5
-# alpha = 0.95
-# beta = 2
-# nu = 3
-# lambda = 0.1
-# sigma2 = 1
-# nburn = 1000
-# npost = 1000
-# nthin = 1
-# df=2
-# dg=2
-# str='splines'
-# sparse = TRUE
-# vars_inter_slope = TRUE
-# ancestors = TRUE
-
 gam_bart = function(x,
                     y,
                     sparse = TRUE,
@@ -40,7 +23,8 @@ gam_bart = function(x,
                     nthin = 1,
                     ancestors = FALSE,
                     one_var_per_tree = FALSE,
-                    remove_intercept = FALSE) {
+                    remove_intercept = FALSE,
+                    test = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -91,6 +75,11 @@ gam_bart = function(x,
     for (h in aux_scale){
       X_splines[[h+1]] = as.matrix(X[,(h+1)])
     }
+  }
+
+  if (test == TRUE){
+    X_splines[[2]] = x
+    X[,2] = x[,1]
   }
 
   # Extract control parameters
