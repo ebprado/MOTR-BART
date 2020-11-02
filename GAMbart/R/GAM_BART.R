@@ -26,7 +26,7 @@
 # one_var_per_tree = FALSE
 # remove_intercept = FALSE
 # test = FALSE
-# penalty = 'ridge'
+# penalty = 'EM'
 
 gam_bart = function(x,
                     y,
