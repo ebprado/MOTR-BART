@@ -240,7 +240,8 @@ gam_bart = function(x,
                                     lambda,
                                     tau_b,
                                     ancestors,
-                                    remove_intercept) +
+                                    remove_intercept,
+                                    penalty_matrix) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
@@ -254,7 +255,8 @@ gam_bart = function(x,
                                     lambda,
                                     tau_b,
                                     ancestors,
-                                    remove_intercept) +
+                                    remove_intercept,
+                                    penalty_matrix) +
         get_tree_prior(curr_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
@@ -285,7 +287,8 @@ gam_bart = function(x,
                                     tau_b,
                                     nu,
                                     ancestors,
-                                    remove_intercept)
+                                    remove_intercept,
+                                    penalty_matrix)
 
     } # End loop through trees
 
