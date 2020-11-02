@@ -3,6 +3,7 @@
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'poly' 'predict'
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
+#' @importFrom Matrix 'bdiag'
 
 gam_bart = function(x,
                     y,
@@ -24,7 +25,8 @@ gam_bart = function(x,
                     ancestors = FALSE,
                     one_var_per_tree = FALSE,
                     remove_intercept = FALSE,
-                    test = FALSE) {
+                    test = FALSE,
+                    penalty = 'ridge') {
 
   X_orig = x
   X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
@@ -68,6 +70,31 @@ gam_bart = function(x,
         }
       }
     },error = function(e) e)
+
+    # Get the number of columns/basis generated for each variable
+    num_columns = rep(NA, length(X_splines) - 1) # Discount the intercept
+    for (h in 1:length(X_splines)){
+      num_columns = ncol(X_splines[[h+1]])
+    }
+  }
+
+  # Create the penalty matrices considering the number of basis functions generated for each variable
+  if (penalty == 'EM'){
+    penalty_matrix = list()
+    penalty_matrix[[1]] = matrix(1, ncol=1)
+    for (h in 1:length(num_columns)){
+      ncolumns = num_columns[h]
+      P <- diff(diag(ncolumns), differences = 1)
+      penalty_matrix[[h+1]] <- t(P)%*%P
+    }
+  }
+  if (penalty == 'ridge'){
+    penalty_matrix = list()
+    penalty_matrix[[1]] = matrix(1, ncol=1)
+    for (h in 1:length(num_columns)){
+      ncolumns = num_columns[h]
+      penalty_matrix[[h+1]] <- diag(ncolumns)
+    }
   }
 
   # Keep the (standardised) original covariates ------------------------------------------------------------
@@ -250,7 +277,7 @@ gam_bart = function(x,
     # Update sigma2_beta0 and sigma2_beta1
     if (vars_inter_slope == 'TRUE') {
       vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
-      V = c(vars_betas$var_inter, vars_betas$var_slopes)
+      V = 1/c(vars_betas$var_inter, vars_betas$var_slopes)
       inv_V = 1/V
     }
 

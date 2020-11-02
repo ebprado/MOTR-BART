@@ -16,7 +16,7 @@
 # xsplines= X_splines
 # R = current_partial_residuals
 
-tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda, tau_b, ancestors, remove_intercept) {
+tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda, tau_b, ancestors, remove_intercept, penalty_matrix) {
 
   # Select the lines that correspond to terminal and internal nodes
   which_terminal = which(tree$tree_matrix[,'terminal'] == 1)
@@ -57,7 +57,11 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
 
     p = ncol(X_node)
-    invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
+    # invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
+    K = bdiag(penalty_matrix[lm_vars])
+    dK = ncol(K)
+    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)))
+    invV = K%*%taus
     V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
 
     Lambda_node_inv = t(X_node)%*%X_node + invV
@@ -75,7 +79,7 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
 
 # Simulate_par -------------------------------------------------------------
 
-simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors, remove_intercept) {
+simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors, remove_intercept, penalty_matrix) {
 
   # First find which rows are terminal and internal nodes
   which_terminal = which(tree$tree_matrix[,'terminal'] == 1)
@@ -114,7 +118,11 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors,
     }
     X_node = as.matrix(matrix(unlist(xsplines[lm_vars]), nrow=n)[curr_X_node_indices == unique_node_indices[i],])
     p = ncol(X_node)
-    invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
+    # invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
+    K = bdiag(penalty_matrix[lm_vars])
+    dK = ncol(K)
+    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)))
+    invV = K%*%taus
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
     Lambda_node = solve(t(X_node)%*%X_node + invV)
 
