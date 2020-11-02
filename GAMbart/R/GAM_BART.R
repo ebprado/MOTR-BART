@@ -5,6 +5,29 @@
 #' @importFrom MCMCpack 'rdirichlet'
 #' @importFrom Matrix 'bdiag'
 
+# x
+# y
+# sparse = TRUE
+# vars_inter_slope = TRUE
+# str = c('splines')
+# df = 10
+# dg = 3
+# ntrees = 10
+# node_min_size = 10
+# alpha = 0.95
+# beta = 2
+# nu = 3
+# lambda = 0.1
+# sigma2 = 1
+# nburn = 1000
+# npost = 1000
+# nthin = 1
+# ancestors = FALSE
+# one_var_per_tree = FALSE
+# remove_intercept = FALSE
+# test = FALSE
+# penalty = 'ridge'
+
 gam_bart = function(x,
                     y,
                     sparse = TRUE,
@@ -70,12 +93,24 @@ gam_bart = function(x,
         }
       }
     },error = function(e) e)
+  }
 
-    # Get the number of columns/basis generated for each variable
-    num_columns = rep(NA, length(X_splines) - 1) # Discount the intercept
-    for (h in 1:length(X_splines)){
-      num_columns = ncol(X_splines[[h+1]])
+  # Keep the (standardised) original covariates ------------------------------------------------------------
+  if (str == 'original'){
+    for (h in aux_scale){
+      X_splines[[h+1]] = as.matrix(X[,(h+1)])
     }
+  }
+
+  if (test == TRUE){
+    X_splines[[2]] = X_orig
+    X[,2] = X_orig[,1]
+  }
+
+  # Get the number of columns/basis generated for each variable
+  num_columns = rep(NA, length(X_splines) - 1) # Discount the intercept
+  for (h in 1:length(num_columns)){
+    num_columns[h] = ncol(X_splines[[h+1]])
   }
 
   # Create the penalty matrices considering the number of basis functions generated for each variable
@@ -95,18 +130,6 @@ gam_bart = function(x,
       ncolumns = num_columns[h]
       penalty_matrix[[h+1]] <- diag(ncolumns)
     }
-  }
-
-  # Keep the (standardised) original covariates ------------------------------------------------------------
-  if (str == 'original'){
-    for (h in aux_scale){
-      X_splines[[h+1]] = as.matrix(X[,(h+1)])
-    }
-  }
-
-  if (test == TRUE){
-    X_splines[[2]] = X_orig
-    X[,2] = X_orig[,1]
   }
 
   # Extract control parameters
