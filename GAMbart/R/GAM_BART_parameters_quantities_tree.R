@@ -12,6 +12,7 @@
 
 # Compute the full conditionals -------------------------------------------------
 
+# tree = curr_trees[[j]]
 # tree = new_trees[[j]]
 # xsplines= X_splines
 # R = current_partial_residuals
@@ -60,7 +61,7 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
     # invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
     K = bdiag(penalty_matrix[lm_vars])
     dK = ncol(K)
-    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)))
+    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)), ncol = p)
     invV = K%*%taus
     V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
 
@@ -68,9 +69,11 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
     Lambda_node = solve(t(X_node)%*%X_node + invV)
     mu_node = Lambda_node%*%((t(X_node))%*%r_node)
 
-    log_post[i] = -0.5 * log(det(V_)) +
-      0.5*log(1/det(Lambda_node_inv)) -
-      (1/(2*sigma2)) * (- t(mu_node)%*%Lambda_node_inv%*%mu_node)
+    log_post[i] = as.numeric(
+                  -0.5 * log(det(V_)) +
+                  0.5*log(1/det(Lambda_node_inv)) -
+                  (1/(2*sigma2)) * (- t(mu_node)%*%Lambda_node_inv%*%mu_node)
+                  )
 
   }
   return(sum(log_post))
@@ -121,15 +124,15 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors,
     # invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
     K = bdiag(penalty_matrix[lm_vars])
     dK = ncol(K)
-    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)))
+    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)), ncol=p)
     invV = K%*%taus
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
     Lambda_node = solve(t(X_node)%*%X_node + invV)
 
     # Generate betas  -------------------------------------------------
     beta_hat = rmvnorm(1,
-                 mean = Lambda_node%*%(t(X_node)%*%r_node),
-                 sigma = sigma2*Lambda_node)
+                 mean = as.matrix(Lambda_node%*%(t(X_node)%*%r_node)),
+                 sigma = sigma2*as.matrix(Lambda_node))
 
     # Put in the esimates
     tree$tree_matrix[unique_node_indices[i],'beta_hat'] = paste(beta_hat, collapse = ',')
