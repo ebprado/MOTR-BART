@@ -62,15 +62,16 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
     K = bdiag(penalty_matrix[lm_vars])
     dK = ncol(K)
     taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)), ncol = p)
-    invV = K%*%taus
-    V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
+    invV = as.matrix(K%*%taus)
+    # V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
 
-    Lambda_node_inv = t(X_node)%*%X_node + invV
-    Lambda_node = solve(t(X_node)%*%X_node + invV)
-    mu_node = Lambda_node%*%((t(X_node))%*%r_node)
+    Lambda_node_inv = as.matrix(t(X_node)%*%X_node + invV)
+    # Lambda_node = solve(t(X_node)%*%X_node + invV)
+    # mu_node = Lambda_node%*%((t(X_node))%*%r_node)
+    mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
 
     log_post[i] = as.numeric(
-                  -0.5 * log(det(V_)) +
+                  + 0.5 * log(det(invV)) +
                   0.5*log(1/det(Lambda_node_inv)) -
                   (1/(2*sigma2)) * (- t(mu_node)%*%Lambda_node_inv%*%mu_node)
                   )
@@ -78,7 +79,6 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
   }
   return(sum(log_post))
 }
-
 
 # Simulate_par -------------------------------------------------------------
 
