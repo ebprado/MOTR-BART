@@ -80,7 +80,7 @@ gam_bart = function(x,
         check_error = try(bs(X_orig[,h], df = df, degree=dg))
         if ('try-error' %in% class(check_error) || h %in% (which(unique.values.X==2)-1)){ # binary variables
           X_splines[[h+1]] = matrix(X_orig[,h], ncol = 1) # 1 knot!
-          X[,(h+1)] = X_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
+          # X[,(h+1)] = X_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(X_splines)[h+1] = var_names[h]
         } else {
           X_splines[[h+1]] = matrix(scale(bs(X_orig[,h], df = df, degree = dg)), ncol = df) # df knots!
@@ -88,7 +88,7 @@ gam_bart = function(x,
           if (any(is.na(sd_scaled_splines)) == TRUE) {
             X_splines[[h+1]][,which(is.na(sd_scaled_splines))] = 0
           }
-          X[,(h+1)] = X_splines[[h+1]][,1]
+          # X[,(h+1)] = X_splines[[h+1]][,1]
           names(X_splines)[h+1] = var_names[h]
         }
       }
