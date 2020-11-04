@@ -81,10 +81,10 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
 }
 
 # Simulate_par -------------------------------------------------------------
-tree = curr_trees[[j]]
+# tree = curr_trees[[j]]
 # tree = new_trees[[j]]
-xsplines= X_splines
-R = current_partial_residuals
+# xsplines= X_splines
+# R = current_partial_residuals
 
 simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors, remove_intercept, penalty_matrix) {
 
