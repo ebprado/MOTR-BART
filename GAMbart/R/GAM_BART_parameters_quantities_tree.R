@@ -17,7 +17,7 @@
 # xsplines= X_splines
 # R = current_partial_residuals
 
-tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda, tau_b, ancestors, remove_intercept, penalty_matrix) {
+tree_full_conditional = function(tree, xsplines, R, sigma2, inv_V, nu, lambda, tau_b, ancestors, remove_intercept, penalty_matrix) {
 
   # Select the lines that correspond to terminal and internal nodes
   which_terminal = which(tree$tree_matrix[,'terminal'] == 1)
@@ -66,9 +66,9 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
     # V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
 
     Lambda_node_inv = as.matrix(t(X_node)%*%X_node + invV)
-    # Lambda_node = solve(t(X_node)%*%X_node + invV)
-    # mu_node = Lambda_node%*%((t(X_node))%*%r_node)
-    mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
+    Lambda_node = solve(t(X_node)%*%X_node + invV)
+    mu_node = Lambda_node%*%((t(X_node))%*%r_node)
+    # mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
 
     log_post[i] = as.numeric(
                   # + 0.5 * log(det(invV)) + # For GAM-BART the prior on beta is improper
@@ -128,7 +128,7 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors,
     K = bdiag(penalty_matrix[lm_vars])
     dK = ncol(K)
     taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)), ncol=p)
-    invV = Matrix::as.matrix(K%*%taus)
+    invV = as.matrix(K%*%taus)
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
     Lambda_node = forceSymmetric(solve(t(X_node)%*%X_node + invV))
 

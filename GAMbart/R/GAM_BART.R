@@ -98,8 +98,7 @@ gam_bart = function(x,
   # Keep the (standardised) original covariates ------------------------------------------------------------
   if (str == 'original'){
     for (h in aux_scale){
-      X_scaled = scale(X_orig) # standardising the covariates
-      X_splines[[h+1]] = as.matrix(scale(X_scaled[,(h+1)]))
+      X_splines[[h+1]] = as.matrix(scale(X_orig[,h]))
     }
   }
 
@@ -196,7 +195,7 @@ gam_bart = function(x,
       y_hat_store[curr,] = predictions
       var_count_store[curr,] = var_count
       s_prob_store[curr,] = s
-      vars_betas_store[curr,] = V
+      vars_betas_store[curr,] = inv_V
     }
 
     # Start looping through trees
@@ -235,7 +234,6 @@ gam_bart = function(x,
                                     X_splines,
                                     current_partial_residuals,
                                     sigma2,
-                                    V,
                                     inv_V,
                                     nu,
                                     lambda,
@@ -250,7 +248,6 @@ gam_bart = function(x,
                                     X_splines,
                                     current_partial_residuals,
                                     sigma2,
-                                    V,
                                     inv_V,
                                     nu,
                                     lambda,
@@ -304,8 +301,7 @@ gam_bart = function(x,
     # Update sigma2_beta0 and sigma2_beta1
     if (vars_inter_slope == 'TRUE') {
       vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
-      V = 1/c(vars_betas$var_inter, vars_betas$var_slopes)
-      inv_V = 1/V
+      inv_V = c(vars_betas$var_inter, vars_betas$var_slopes)
     }
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
@@ -333,7 +329,7 @@ gam_bart = function(x,
               ancestors = ancestors,
               var_count_store = var_count_store,
               s = s_prob_store,
-              vars_betas = vars_betas_store,
+              tau_betas = vars_betas_store,
               remove_intercept = remove_intercept))
 
 } # End main function
@@ -471,7 +467,7 @@ gam_bart_class = function(x,
       y_hat_store[curr,] = pnorm(predictions)
       var_count_store[curr,] = var_count
       s_prob_store[curr,] = s
-      vars_betas_store[curr,] = V
+      vars_betas_store[curr,] = inv_V
     }
 
     # Start looping through trees
@@ -502,7 +498,6 @@ gam_bart_class = function(x,
                                     X_splines,
                                     current_partial_residuals,
                                     sigma2,
-                                    V,
                                     inv_V,
                                     nu,
                                     lambda,
@@ -515,7 +510,6 @@ gam_bart_class = function(x,
                                     X_splines,
                                     current_partial_residuals,
                                     sigma2,
-                                    V,
                                     inv_V,
                                     nu,
                                     lambda,
@@ -568,8 +562,7 @@ gam_bart_class = function(x,
     # Update sigma2_beta0 and sigma2_beta1
     if (vars_inter_slope == 'TRUE') {
       vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
-      V = c(vars_betas$var_inter, vars_betas$var_slopes)
-      inv_V = 1/V
+      inv_V = c(vars_betas$var_inter, vars_betas$var_slopes)
     }
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
@@ -596,7 +589,7 @@ gam_bart_class = function(x,
               ancestors = ancestors,
               var_count_store = var_count_store,
               s = s_prob_store,
-              vars_betas = vars_betas_store,
+              tau_betas = vars_betas_store,
               remove_intercept = remove_intercept))
 
 } # End main function
