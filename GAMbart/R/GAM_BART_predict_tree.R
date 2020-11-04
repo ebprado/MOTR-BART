@@ -38,10 +38,10 @@ predict_gam_bart = function(object, traindata, newdata,
           names(newX_splines)[h+1] = var_names[h]
         } else {
           X_train_splines = bs(traindata[,h], df = df, degree=dg)
-          center = colMeans(matrix(X_train_splines, nrow=nrow(traindata)))
+          center_splines = colMeans(matrix(X_train_splines, nrow=nrow(traindata)))
           sd_cov = apply(matrix(X_train_splines, nrow=nrow(traindata)),2,sd)
           if (any(is.na(sd_cov)) == TRUE) {sd_cov[which(is.na(sd_cov))] = 1}
-          newX_splines[[h+1]] = matrix(scale(predict(X_train_splines, newdata_orig[,h]), center = center, scale = sd_cov), ncol = df) # 1 knot!
+          newX_splines[[h+1]] = matrix(scale(predict(X_train_splines, newdata_orig[,h]), center = center_splines, scale = sd_cov), ncol = df) # 1 knot!
           # newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = df) # df knots!
           # newdata[,(h+1)] = newX_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(newX_splines)[h+1] = var_names[h]
@@ -52,7 +52,7 @@ predict_gam_bart = function(object, traindata, newdata,
 
   if (str == 'original'){
     for (h in aux_scale){
-      newdata_scaled = scale(newdata, center=center, scale=scale)
+      newdata_scaled = scale(newdata_orig, center=center, scale=scale)
       newX_splines[[h+1]] = as.matrix(newdata_scaled[,(h+1)])
     }
   }

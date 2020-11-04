@@ -98,7 +98,7 @@ gam_bart = function(x,
   # Keep the (standardised) original covariates ------------------------------------------------------------
   if (str == 'original'){
     for (h in aux_scale){
-      X_scaled = scale(X) # standardising the covariates and adding an intercept
+      X_scaled = scale(X_orig) # standardising the covariates
       X_splines[[h+1]] = as.matrix(scale(X_scaled[,(h+1)]))
     }
   }
