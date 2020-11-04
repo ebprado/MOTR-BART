@@ -5,28 +5,28 @@
 #' @importFrom MCMCpack 'rdirichlet'
 #' @importFrom Matrix 'bdiag'
 
-# x
-# y
-# sparse = TRUE
-# vars_inter_slope = TRUE
-# str = c('splines')
-# df = 10
-# dg = 3
-# ntrees = 10
-# node_min_size = 10
-# alpha = 0.95
-# beta = 2
-# nu = 3
-# lambda = 0.1
-# sigma2 = 1
-# nburn = 1000
-# npost = 1000
-# nthin = 1
-# ancestors = FALSE
-# one_var_per_tree = FALSE
-# remove_intercept = FALSE
-# test = FALSE
-# penalty = 'EM'
+x
+y
+sparse = TRUE
+vars_inter_slope = TRUE
+str = c('splines')
+df = 10
+dg = 3
+ntrees = 10
+node_min_size = 10
+alpha = 0.95
+beta = 2
+nu = 3
+lambda = 0.1
+sigma2 = 1
+nburn = 1000
+npost = 1000
+nthin = 1
+ancestors = FALSE
+one_var_per_tree = FALSE
+remove_intercept = FALSE
+test = FALSE
+penalty = 'EM'
 
 gam_bart = function(x,
                     y,
@@ -530,15 +530,15 @@ gam_bart_class = function(x,
       if(a > runif(1)) {
         curr_trees[[j]] = new_trees[[j]]
 
-        if (type =='change'){
+        if (type == 'change'){
           var_count[curr_trees[[j]]$var[1] - 1] = var_count[curr_trees[[j]]$var[1] - 1] - 1
           var_count[curr_trees[[j]]$var[2] - 1] = var_count[curr_trees[[j]]$var[2] - 1] + 1
         }
 
-        if (type=='grow'){
+        if (type == 'grow'){
           var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] + 1 } # -1 because of the intercept in X
 
-        if (type=='prune'){
+        if (type == 'prune'){
           var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] - 1 } # -1 because of the intercept in X
       }
 

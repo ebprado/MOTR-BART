@@ -13,9 +13,9 @@
 # Compute the full conditionals -------------------------------------------------
 
 # tree = curr_trees[[j]]
-# tree = new_trees[[j]]
-# xsplines= X_splines
-# R = current_partial_residuals
+tree = new_trees[[j]]
+xsplines= X_splines
+R = current_partial_residuals
 
 tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda, tau_b, ancestors, remove_intercept, penalty_matrix) {
 
@@ -71,7 +71,7 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
     mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
 
     log_post[i] = as.numeric(
-                  + 0.5 * log(det(invV)) +
+                  # + 0.5 * log(det(invV)) + # For GAM-BART the prior on beta is improper
                   0.5*log(1/det(Lambda_node_inv)) -
                   (1/(2*sigma2)) * (- t(mu_node)%*%Lambda_node_inv%*%mu_node)
                   )
