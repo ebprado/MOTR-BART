@@ -66,9 +66,9 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
     # V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
 
     Lambda_node_inv = as.matrix(t(X_node)%*%X_node + invV)
-    Lambda_node = solve(t(X_node)%*%X_node + invV)
-    mu_node = Lambda_node%*%((t(X_node))%*%r_node)
-    # mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
+    # Lambda_node = solve(t(X_node)%*%X_node + invV)
+    # mu_node = Lambda_node%*%((t(X_node))%*%r_node)
+    mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
 
     log_post[i] = as.numeric(
                   + 0.5 * log(det(invV)) +

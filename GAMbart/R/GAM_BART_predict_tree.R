@@ -34,7 +34,7 @@ predict_gam_bart = function(object, traindata, newdata,
         check_error = try(bs(traindata[,h], df = df, degree=dg))
         if ('try-error' %in% class(check_error) || scale[h] == 1){
           newX_splines[[h+1]] = matrix(newdata_orig[,h], ncol = 1) # 1 knot!
-          newdata[,(h+1)] = newX_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
+          # newdata[,(h+1)] = newX_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(newX_splines)[h+1] = var_names[h]
         } else {
           X_train_splines = bs(traindata[,h], df = df, degree=dg)
@@ -43,7 +43,7 @@ predict_gam_bart = function(object, traindata, newdata,
           if (any(is.na(sd_cov)) == TRUE) {sd_cov[which(is.na(sd_cov))] = 1}
           newX_splines[[h+1]] = matrix(scale(predict(X_train_splines, newdata_orig[,h]), center = center, scale = sd_cov), ncol = df) # 1 knot!
           # newX_splines[[h+1]] = matrix(predict(X_train_splines, newdata_orig[,h]), ncol = df) # df knots!
-          newdata[,(h+1)] = newX_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
+          # newdata[,(h+1)] = newX_splines[[h+1]][,1] # Get the 1st column of the splines and put it in the design matrix (that will be used to create the splitting rules)
           names(newX_splines)[h+1] = var_names[h]
         }
       }
