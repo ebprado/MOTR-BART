@@ -13,9 +13,9 @@
 # Compute the full conditionals -------------------------------------------------
 
 # tree = curr_trees[[j]]
-tree = new_trees[[j]]
-xsplines= X_splines
-R = current_partial_residuals
+# tree = new_trees[[j]]
+# xsplines= X_splines
+# R = current_partial_residuals
 
 tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda, tau_b, ancestors, remove_intercept, penalty_matrix) {
 

@@ -5,28 +5,28 @@
 #' @importFrom MCMCpack 'rdirichlet'
 #' @importFrom Matrix 'bdiag'
 
-x
-y
-sparse = TRUE
-vars_inter_slope = TRUE
-str = c('splines')
-df = 10
-dg = 3
-ntrees = 10
-node_min_size = 10
-alpha = 0.95
-beta = 2
-nu = 3
-lambda = 0.1
-sigma2 = 1
-nburn = 1000
-npost = 1000
-nthin = 1
-ancestors = FALSE
-one_var_per_tree = FALSE
-remove_intercept = FALSE
-test = FALSE
-penalty = 'EM'
+# x
+# y
+# sparse = TRUE
+# vars_inter_slope = TRUE
+# str = c('splines')
+# df = 10
+# dg = 3
+# ntrees = 10
+# node_min_size = 10
+# alpha = 0.95
+# beta = 2
+# nu = 3
+# lambda = 0.1
+# sigma2 = 1
+# nburn = 1000
+# npost = 1000
+# nthin = 1
+# ancestors = FALSE
+# one_var_per_tree = FALSE
+# remove_intercept = FALSE
+# test = FALSE
+# penalty = 'EM'
 
 gam_bart = function(x,
                     y,
