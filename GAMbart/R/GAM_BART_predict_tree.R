@@ -6,7 +6,7 @@ predict_gam_bart = function(object, traindata, newdata,
   center = object$center_x
   scale = object$scale_x
   newdata_orig = newdata
-  newdata = as.matrix(cbind(1,scale(newdata, center=center, scale=scale)))
+  newdata = as.matrix(cbind(1,newdata))
 
   # Create holder for predicted values
   n_newX = dim(newdata)[1]
@@ -52,7 +52,8 @@ predict_gam_bart = function(object, traindata, newdata,
 
   if (str == 'original'){
     for (h in aux_scale){
-      newX_splines[[h+1]] = as.matrix(newdata[,(h+1)])
+      newdata_scaled = scale(newdata, center=center, scale=scale)
+      newX_splines[[h+1]] = as.matrix(newdata_scaled[,(h+1)])
     }
   }
 

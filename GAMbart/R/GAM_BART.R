@@ -52,7 +52,7 @@ gam_bart = function(x,
                     penalty = 'ridge') {
 
   X_orig = x
-  X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
+  X = as.matrix(cbind(1,x)) # adding an intercept
 
   aux.X = apply(X, 2, unique) # Checking how many unique values each variable has
   unique.values.X = unlist(lapply(aux.X, length))
@@ -98,7 +98,8 @@ gam_bart = function(x,
   # Keep the (standardised) original covariates ------------------------------------------------------------
   if (str == 'original'){
     for (h in aux_scale){
-      X_splines[[h+1]] = as.matrix(X[,(h+1)])
+      X_scaled = scale(X) # standardising the covariates and adding an intercept
+      X_splines[[h+1]] = as.matrix(scale(X_scaled[,(h+1)]))
     }
   }
 
