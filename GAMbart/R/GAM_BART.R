@@ -3,7 +3,7 @@
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'poly' 'predict'
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
-#' @importFrom Matrix 'bdiag'
+#' @importFrom Matrix 'bdiag' 'forceSymmetric'
 
 # x
 # y
@@ -600,4 +600,3 @@ gam_bart_class = function(x,
               remove_intercept = remove_intercept))
 
 } # End main function
-

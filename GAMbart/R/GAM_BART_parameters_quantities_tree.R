@@ -81,6 +81,10 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, V, inv_V, nu, lambda
 }
 
 # Simulate_par -------------------------------------------------------------
+tree = curr_trees[[j]]
+# tree = new_trees[[j]]
+xsplines= X_splines
+R = current_partial_residuals
 
 simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors, remove_intercept, penalty_matrix) {
 
@@ -107,7 +111,6 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors,
     }
   }
 
-  # if (ancestors == 'all covariates') {lm_vars <- 1:ncol(X)}
   if (ancestors == TRUE) {get_ancs <- get_ancestors(tree)}
 
   # Compute the log marginalised likelihood for each terminal node
@@ -125,9 +128,9 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors,
     K = bdiag(penalty_matrix[lm_vars])
     dK = ncol(K)
     taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)), ncol=p)
-    invV = K%*%taus
+    invV = Matrix::as.matrix(K%*%taus)
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
-    Lambda_node = solve(t(X_node)%*%X_node + invV)
+    Lambda_node = forceSymmetric(solve(t(X_node)%*%X_node + invV))
 
     # Generate betas  -------------------------------------------------
     beta_hat = rmvnorm(1,
@@ -137,7 +140,6 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors,
     # Put in the esimates
     tree$tree_matrix[unique_node_indices[i],'beta_hat'] = paste(beta_hat, collapse = ',')
   }
-
   return(tree)
 }
 
