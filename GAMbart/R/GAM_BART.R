@@ -164,8 +164,8 @@ gam_bart = function(x,
 
   # Prior of the vectors beta
   tau_b = ntrees
-  V = rep(1/tau_b, 2)
-  inv_V = 1/V
+  inv_V = list(var_inter = 1/tau_b,
+               var_slopes = 1/tau_b)
 
   # Create a list of trees for the initial stump
   curr_trees = create_stump(num_trees = ntrees,
@@ -195,7 +195,7 @@ gam_bart = function(x,
       y_hat_store[curr,] = predictions
       var_count_store[curr,] = var_count
       s_prob_store[curr,] = s
-      vars_betas_store[curr,] = inv_V
+      vars_betas_store[curr,] = c(inv_V[['var_inter']], inv_V[['var_slopes']])
     }
 
     # Start looping through trees
@@ -298,10 +298,9 @@ gam_bart = function(x,
     # Update sigma2 (variance of the residuals)
     sigma2 = update_sigma2(S, n = length(y_scale), nu, lambda)
 
-    # Update sigma2_beta0 and sigma2_beta1
+    # Update tau_beta0 and tau_beta1
     if (vars_inter_slope == 'TRUE') {
-      vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
-      inv_V = c(vars_betas$var_inter, vars_betas$var_slopes)
+      inv_V = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
     }
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
@@ -559,10 +558,9 @@ gam_bart_class = function(x,
     # Update sigma2 (variance of the residuals)
     sigma2 = update_sigma2(S, n = length(y_scale), nu, lambda)
 
-    # Update sigma2_beta0 and sigma2_beta1
+    # Update tau_beta0 and tau_beta1
     if (vars_inter_slope == 'TRUE') {
-      vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
-      inv_V = c(vars_betas$var_inter, vars_betas$var_slopes)
+      inv_V = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
     }
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes

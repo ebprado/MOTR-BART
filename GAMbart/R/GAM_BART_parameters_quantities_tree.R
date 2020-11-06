@@ -61,18 +61,17 @@ tree_full_conditional = function(tree, xsplines, R, sigma2, inv_V, nu, lambda, t
     # invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
     K = bdiag(penalty_matrix[lm_vars])
     dK = ncol(K)
-    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)), ncol = p)
+    taus = diag(c(inv_V[['var_inter']], rep(inv_V[['var_slopes']], dK-1)), ncol = p)
     invV = as.matrix(K%*%taus)
-    # V_ = diag(c(V[1], rep(V[2], p - 1)), ncol=p)
 
     Lambda_node_inv = as.matrix(t(X_node)%*%X_node + invV)
-    Lambda_node = solve(t(X_node)%*%X_node + invV)
-    mu_node = Lambda_node%*%((t(X_node))%*%r_node)
-    # mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
+    # Lambda_node = solve(t(X_node)%*%X_node + invV)
+    # mu_node = Lambda_node%*%((t(X_node))%*%r_node)
+    mu_node = as.matrix(solve(Lambda_node_inv, t(X_node)%*%r_node))
 
     log_post[i] = as.numeric(
-                  # + 0.5 * log(det(invV)) + # For GAM-BART the prior on beta is improper
-                  0.5*log(1/det(Lambda_node_inv)) -
+                  # + 0.5 * log(det(invV)) + # In GAM-BART, the prior on beta is improper
+                   - 0.5*log(det(Lambda_node_inv)) -
                   (1/(2*sigma2)) * (- t(mu_node)%*%Lambda_node_inv%*%mu_node)
                   )
 
@@ -127,7 +126,7 @@ simulate_beta = function(tree, xsplines, R, sigma2, inv_V, tau_b, nu, ancestors,
     # invV = diag(c(inv_V[1], rep(inv_V[2], p - 1)), ncol = p)
     K = bdiag(penalty_matrix[lm_vars])
     dK = ncol(K)
-    taus = diag(c(inv_V[1], rep(inv_V[2], dK-1)), ncol=p)
+    taus = diag(c(inv_V[['var_inter']], rep(inv_V[['var_slopes']], dK-1)), ncol = p)
     invV = as.matrix(K%*%taus)
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
     Lambda_node = forceSymmetric(solve(t(X_node)%*%X_node + invV))
