@@ -240,7 +240,7 @@ gam_bart = function(x,
       n_diff = n_cov_new_tree - n_cov_old_tree
 
       if (n_diff > 0) {
-        diff_n_cov = ndiff
+        diff_n_cov = n_diff
       }
       else {
         diff_n_cov = 1
