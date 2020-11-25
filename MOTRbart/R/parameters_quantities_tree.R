@@ -9,7 +9,7 @@
 # 3. update_z: updates the latent variables z. This is required for MOTR-BART for classification.
 # 4. get_tree_prior: returns the tree log prior score
 # 5. tree_full_conditional: computes the marginalised likelihood for all nodes for a given tree
-
+# 6. get_number_distinct_cov: counts the number of distinct covariates that are used in a tree to create the splitting rules
 # Compute the full conditionals -------------------------------------------------
 
 tree_full_conditional = function(tree, X, R, sigma2, V, inv_V, nu, lambda, tau_b, ancestors) {
@@ -42,8 +42,9 @@ tree_full_conditional = function(tree, X, R, sigma2, V, inv_V, nu, lambda, tau_b
     X_node = X[curr_X_node_indices == unique_node_indices[i], lm_vars]
     r_node = R[curr_X_node_indices == unique_node_indices[i]]
     Lambda_node_inv = t(X_node)%*%X_node + invV
-    Lambda_node = solve(t(X_node)%*%X_node + invV)
-    mu_node = Lambda_node%*%((t(X_node))%*%r_node)
+    # Lambda_node = solve(t(X_node)%*%X_node + invV)
+    # mu_node = Lambda_node%*%((t(X_node))%*%r_node)
+    mu_node = solve(Lambda_node_inv, t(X_node)%*%r_node)
 
     log_post[i] = -0.5 * log(det(V_)) +
       0.5*log(1/det(Lambda_node_inv)) -
@@ -118,7 +119,7 @@ update_z = function(y, prediction){
 
 # Get tree priors ---------------------------------------------------------
 
-get_tree_prior = function(tree, alpha, beta) {
+  get_tree_prior = function(tree, alpha, beta) {
 
   # Need to work out the depth of the tree
   # First find the level of each node, then the depth is the maximum of the level
@@ -151,4 +152,4 @@ get_tree_prior = function(tree, alpha, beta) {
 
   return(log_prior)
 
-}
+  }

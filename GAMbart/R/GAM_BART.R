@@ -120,7 +120,12 @@ gam_bart = function(x,
     for (h in 1:length(num_columns)){
       ncolumns = num_columns[h]
       P <- diff(diag(ncolumns), differences = 1)
-      penalty_matrix[[h+1]] <- t(P)%*%P
+      S <- t(P)%*%P
+      penalty_matrix[[h+1]] <- S
+      # U = eigen(S)$vector
+      # Lambda_tilda = eigen(S)$values
+      # Lambda_tilda[which(Lambda_tilda == 0)] = min(Lambda_tilda[which(Lambda_tilda > 0)])
+      # penalty_matrix[[h+1]] = U%*%diag(Lambda_tilda)%*%t(U)
     }
   }
   if (penalty == 'ridge'){
@@ -229,6 +234,18 @@ gam_bart = function(x,
                                    index_tree = j,
                                    one_var_per_tree = one_var_per_tree)
 
+      # Get the number of distinct covariates that are used to define the splitting rules in a tree
+      n_cov_old_tree = get_number_distinct_cov(curr_trees[[j]])
+      n_cov_new_tree = get_number_distinct_cov(new_trees[[j]])
+      n_diff = n_cov_new_tree - n_cov_old_tree
+
+      if (n_diff > 0) {
+        diff_n_cov = ndiff
+      }
+      else {
+        diff_n_cov = 1
+      }
+
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
                                     X_splines,
@@ -241,7 +258,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(new_trees[[j]], alpha, beta)
+        get_tree_prior(new_trees[[j]], alpha, beta, diff_n_cov) # we penalise 'extra' when including a new covariate.
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
@@ -255,7 +272,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(curr_trees[[j]], alpha, beta)
+        get_tree_prior(curr_trees[[j]], alpha, beta, 1) # we don't penalise 'extra' the current tree.
 
       # Exponentiate the results above
       a = exp(l_new - l_old)

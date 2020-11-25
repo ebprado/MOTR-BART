@@ -7,6 +7,9 @@
 # 2. get_predictions: gets the predicted values from a current set of trees
 # 3. get_children: it's a function that takes a node and, if the node is terminal, returns the node. If not, returns the children and calls the function again on the children
 # 4. resample: an auxiliar function
+# 5. get_ancestors
+# 6. update_s
+# 7. update_vars_intercepts_slopes
 
 # Fill_tree_details -------------------------------------------------------
 

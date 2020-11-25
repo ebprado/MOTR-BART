@@ -190,7 +190,7 @@ motr_bart = function(x,
     }
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
-    if (sparse == 'TRUE'){
+    if (sparse == 'TRUE' & i > floor(TotIter*0.1)){
       s = update_s(var_count, p, 1)
     }
   } # End iterations loop
@@ -412,7 +412,7 @@ motr_bart_class = function(x,
     sigma2 = update_sigma2(sum_of_squares, n = length(y_scale), nu, lambda)
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
-    if (sparse == 'TRUE'){
+    if (sparse == 'TRUE' & i > floor(TotIter*0.1)){
       s = update_s(var_count, p, 1)
     }
 
