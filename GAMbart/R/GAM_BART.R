@@ -49,7 +49,8 @@ gam_bart = function(x,
                     one_var_per_tree = FALSE,
                     remove_intercept = FALSE,
                     test = FALSE,
-                    penalty = 'ridge') {
+                    penalty = 'ridge',
+                    penalty_add_cov = FALSE) {
 
   X_orig = x
   X = as.matrix(cbind(1,x)) # adding an intercept
@@ -160,6 +161,7 @@ gam_bart = function(x,
   n = length(y_scale)
   p = ncol(X_orig)
   s = rep(1/p, p)
+  diff_n_cov = 1
 
   # If the one_var_per_tree = TRUE, then the number of trees is the number of covariates in the data set
 
@@ -235,16 +237,19 @@ gam_bart = function(x,
                                    one_var_per_tree = one_var_per_tree)
 
       # Get the number of distinct covariates that are used to define the splitting rules in a tree
-      n_cov_old_tree = get_number_distinct_cov(curr_trees[[j]])
-      n_cov_new_tree = get_number_distinct_cov(new_trees[[j]])
-      n_diff = n_cov_new_tree - n_cov_old_tree
+      if (penalty_add_cov == TRUE){
+        n_cov_old_tree = get_number_distinct_cov(curr_trees[[j]])
+        n_cov_new_tree = get_number_distinct_cov(new_trees[[j]])
+        n_diff = n_cov_new_tree - n_cov_old_tree
 
-      if (n_diff > 0) {
-        diff_n_cov = n_diff
+        if (n_diff > 0) {
+          diff_n_cov = n_diff
+        }
+        else {
+          diff_n_cov = 1
+        }
       }
-      else {
-        diff_n_cov = 1
-      }
+
 
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
@@ -258,7 +263,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(new_trees[[j]], alpha, beta, diff_n_cov) # we penalise 'extra' when including a new covariate.
+        get_tree_prior(new_trees[[j]], alpha, beta, diff_n_cov) # If penalty_add_cov == TRUE, we penalise 'extra' when including a new covariate.
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
