@@ -289,8 +289,7 @@ change_tree = function(X, y, curr_tree, node_min_size) {
     # choose an internal node to change
     node_to_change = sample(internal_nodes, 1)
 
-    # Find the parent of this terminal node
-    parent_pick = as.numeric(new_tree$tree_matrix[node_to_change, 'parent'])
+    # Get the covariate that will be changed
     var_changed_node = as.numeric(new_tree$tree_matrix[node_to_change, 'split_variable'])
 
     # Use the get_children function to get all the children of this node

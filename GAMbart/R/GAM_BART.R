@@ -5,11 +5,9 @@
 #' @importFrom MCMCpack 'rdirichlet'
 #' @importFrom Matrix 'bdiag' 'forceSymmetric'
 
-# x
-# y
 # sparse = TRUE
 # vars_inter_slope = TRUE
-# str = c('splines')
+# str = 'original'
 # df = 10
 # dg = 3
 # ntrees = 10
@@ -26,7 +24,8 @@
 # one_var_per_tree = FALSE
 # remove_intercept = FALSE
 # test = FALSE
-# penalty = 'EM'
+# penalty = 'ridge'
+# penalty_add_cov = FALSE
 
 gam_bart = function(x,
                     y,

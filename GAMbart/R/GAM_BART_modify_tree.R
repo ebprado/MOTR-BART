@@ -156,6 +156,9 @@ grow_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_per_
     # Now call the fill function on this tree
     new_tree = fill_tree_details(new_tree, X)
 
+    # Store the covariate name to use it to update the Dirichlet prior of Linero (2016).
+    new_tree$var = split_variable
+
     # Check for bad tree
     if(any(as.numeric(new_tree$tree_matrix[,'node_size']) <= node_min_size)) {
       count_bad_trees = count_bad_trees + 1
@@ -163,7 +166,10 @@ grow_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_per_
       bad_trees = FALSE
     }
 
-    if(count_bad_trees == max_bad_trees) return(curr_tree)
+    if(count_bad_trees == max_bad_trees) {
+      curr_tree$var = 1
+      return(curr_tree)
+    }
   }
   # Return new_tree
   return(new_tree)
@@ -177,8 +183,10 @@ prune_tree = function(X, y, curr_tree) {
   # Create placeholder for new tree
   new_tree = curr_tree
 
-  if(nrow(new_tree$tree_matrix) == 1) return(new_tree) # No point in pruning a stump!
-
+  if(nrow(new_tree$tree_matrix) == 1) {
+    new_tree$var = 1
+    return(new_tree) # No point in pruning a stump!
+  }
   # Get the list of terminal nodes
   terminal_nodes = which(as.numeric(new_tree$tree_matrix[,'terminal']) == 1)
 
@@ -192,6 +200,7 @@ prune_tree = function(X, y, curr_tree) {
 
     # Find the parent of this terminal node
     parent_pick = as.numeric(new_tree$tree_matrix[node_to_prune, 'parent'])
+    var_pruned_nodes = as.numeric(new_tree$tree_matrix[parent_pick, 'split_variable'])
 
     # Get the two children of this parent
     child_left = as.numeric(new_tree$tree_matrix[parent_pick, 'child_left'])
@@ -220,6 +229,7 @@ prune_tree = function(X, y, curr_tree) {
 
   # If we're back to a stump no need to call fill_tree_details
   if(nrow(new_tree$tree_matrix) == 1) {
+    new_tree$var = var_pruned_nodes
     new_tree$node_indices = rep(1, length(y))
   } else {
     # If we've removed some nodes from the middle we need to re-number all the child_left and child_right values - the parent values will still be correct
@@ -242,6 +252,8 @@ prune_tree = function(X, y, curr_tree) {
     # Call the fill function on this tree
     new_tree = fill_tree_details(new_tree, X)
 
+    # Store the covariate name that was used in the splitting rule of the terminal nodes that were just pruned
+    new_tree$var = var_pruned_nodes
   }
 
   # Return new_tree
@@ -256,7 +268,11 @@ change_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_pe
   # Change a node means change out the split value and split variable of an internal node. Need to make sure that this does now produce a bad tree (i.e. zero terminal nodes)
 
   # If current tree is a stump nothing to change
-  if(nrow(curr_tree$tree_matrix) == 1) return(curr_tree)
+  if(nrow(curr_tree$tree_matrix) == 1) {
+    curr_tree$var = c(1, 1)
+    return(curr_tree)
+  }
+
 
   # Create a holder for the new tree
   new_tree = curr_tree
@@ -276,6 +292,9 @@ change_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_pe
 
     # choose an internal node to change
     node_to_change = sample(internal_nodes, 1)
+
+    # Get the covariate that will be changed
+    var_changed_node = as.numeric(new_tree$tree_matrix[node_to_change, 'split_variable'])
 
     # Use the get_children function to get all the children of this node
     all_children = get_children(new_tree$tree_matrix, node_to_change)
@@ -298,8 +317,10 @@ change_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_pe
 
     if (length(available_values) == 1){
       new_split_value = available_values[1]
+      new_tree$var = c(var_changed_node, new_split_variable)
     } else if (length(available_values) == 2){
       new_split_value = available_values[2]
+      new_tree$var = c(var_changed_node, new_split_variable)
     } else {
       # new_split_value = sample(available_values[-c(1,length(available_values))], 1)
       new_split_value = resample(available_values[-c(1,length(available_values))])
@@ -313,14 +334,19 @@ change_tree = function(X, y, curr_tree, node_min_size, s, index_tree, one_var_pe
     # Update the tree node indices
     new_tree = fill_tree_details(new_tree, X)
 
+    # Store the covariate name that was used in the splitting rule of the terminal node that was just changed
+    new_tree$var = c(var_changed_node, new_split_variable)
+
     # Check for bad tree
     if(any(as.numeric(new_tree$tree_matrix[terminal_nodes, 'node_size']) <= node_min_size)) {
       count_bad_trees = count_bad_trees + 1
     } else {
       bad_trees = FALSE
     }
-    if(count_bad_trees == max_bad_trees) return(curr_tree)
-
+    if(count_bad_trees == max_bad_trees) {
+      curr_tree$var = c(1, 1)
+      return(curr_tree)
+    }
   } # end of while loop
 
   # Return new_tree
