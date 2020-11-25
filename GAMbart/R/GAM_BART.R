@@ -321,7 +321,7 @@ gam_bart = function(x,
     }
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
-    if (sparse == 'TRUE'){
+    if (sparse == 'TRUE' & i > floor(TotIter)){
       s = update_s(var_count, p, 1)
     }
   } # End iterations loop
@@ -581,7 +581,7 @@ gam_bart_class = function(x,
     }
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
-    if (sparse == 'TRUE'){
+    if (sparse == 'TRUE' & i > floor(TotIter)){
       s = update_s(var_count, p, 1)
     }
 
