@@ -242,10 +242,10 @@ gam_bart = function(x,
         n_diff = n_cov_new_tree - n_cov_old_tree
 
         if (n_diff > 0) {
-          diff_n_cov = n_diff
+          n_cov = n_cov_new_tree
         }
         else {
-          diff_n_cov = 1
+          n_cov = 1
         }
       }
 
@@ -262,7 +262,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(new_trees[[j]], alpha, beta, diff_n_cov) # If penalty_add_cov == TRUE, we penalise 'extra' when including a new covariate.
+        get_tree_prior(new_trees[[j]], alpha, beta, n_cov) # If penalty_add_cov == TRUE, we penalise 'extra' when including a new covariate.
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
