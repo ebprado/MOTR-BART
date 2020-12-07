@@ -2,9 +2,8 @@
 #' @importFrom mvtnorm 'rmvnorm'
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'poly' 'predict'
 #' @importFrom splines 'bs'
-#' @importFrom MCMCpack 'rdirichlet'
 #' @importFrom Matrix 'bdiag' 'forceSymmetric'
-#' @importFrom ExtraDist 'dtpois'
+#' @importFrom extraDistr 'dtpois' 'rdirichlet'
 
 # sparse = TRUE
 # vars_inter_slope = TRUE
