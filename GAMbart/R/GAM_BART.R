@@ -4,6 +4,7 @@
 #' @importFrom splines 'bs'
 #' @importFrom MCMCpack 'rdirichlet'
 #' @importFrom Matrix 'bdiag' 'forceSymmetric'
+#' @importFrom ExtraDist 'dtpois'
 
 # sparse = TRUE
 # vars_inter_slope = TRUE
@@ -160,7 +161,8 @@ gam_bart = function(x,
   n = length(y_scale)
   p = ncol(X_orig)
   s = rep(1/p, p)
-  diff_n_cov = 1
+  n_cov_old_tree = 0
+  n_cov_new_tree = 0
 
   # If the one_var_per_tree = TRUE, then the number of trees is the number of covariates in the data set
 
@@ -239,14 +241,6 @@ gam_bart = function(x,
       if (penalty_add_cov == TRUE){
         n_cov_old_tree = get_number_distinct_cov(curr_trees[[j]])
         n_cov_new_tree = get_number_distinct_cov(new_trees[[j]])
-        n_diff = n_cov_new_tree - n_cov_old_tree
-
-        if (n_diff > 0) {
-          n_cov = n_cov_new_tree
-        }
-        else {
-          n_cov = 1
-        }
       }
 
 
@@ -262,7 +256,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(new_trees[[j]], alpha, beta, n_cov) # If penalty_add_cov == TRUE, we penalise 'extra' when including a new covariate.
+        get_tree_prior(new_trees[[j]], alpha, beta, n_cov_new_tree) # If penalty_add_cov == TRUE, we penalise 'extra' when including a new covariate.
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
@@ -276,7 +270,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(curr_trees[[j]], alpha, beta, 1) # we don't penalise 'extra' the current tree.
+        get_tree_prior(curr_trees[[j]], alpha, beta, n_cov_old_tree)
 
       # Exponentiate the results above
       a = exp(l_new - l_old)

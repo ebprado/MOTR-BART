@@ -162,7 +162,7 @@ update_z = function(y, prediction){
 
 # Get tree priors ---------------------------------------------------------
 
-get_tree_prior = function(tree, alpha, beta, diff_num_cov) {
+get_tree_prior = function(tree, alpha, beta, n_cov) {
 
   # Need to work out the depth of the tree
   # First find the level of each node, then the depth is the maximum of the level
@@ -185,21 +185,27 @@ get_tree_prior = function(tree, alpha, beta, diff_num_cov) {
   internal_nodes = which(as.numeric(tree$tree_matrix[,'terminal']) == 0)
   log_prior = 0
   for(i in 1:length(internal_nodes)) {
-    log_prior = log_prior + log(alpha) - beta * log(1 + diff_num_cov*level[internal_nodes[i]])
+    log_prior = log_prior + log(alpha) - beta * log(1 + level[internal_nodes[i]])
   }
   # Now add on terminal nodes
   terminal_nodes = which(as.numeric(tree$tree_matrix[,'terminal']) == 1)
   for(i in 1:length(terminal_nodes)) {
-    log_prior = log_prior + log(1 - alpha * ((1 + diff_num_cov*level[terminal_nodes[i]])^(-beta)))
+    log_prior = log_prior + log(1 - alpha * ((1 + level[terminal_nodes[i]])^(-beta)))
   }
 
-  return(log_prior)
+  if (n_cov > 0){
+    log_prob_inclusion = dtpois(n_cov, lambda = 1, a = 0, log = TRUE)
+  }
+  if (n_cov == 0) {log_prob_inclusion = 0}
+
+
+  return(log_prior + log_prob_inclusion)
 
 }
 
 get_number_distinct_cov <- function(tree){
 
-  # Select the lines that correspond to internal nodes
+  # Select the rows that correspond to internal nodes
   which_terminal = which(tree$tree_matrix[,'terminal'] == 0)
   # Get the covariates that are used to define the splitting rules
   num_distinct_cov = length(unique(tree$tree_matrix[which_terminal,'split_variable']))
