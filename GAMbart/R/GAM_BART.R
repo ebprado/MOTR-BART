@@ -49,7 +49,8 @@ gam_bart = function(x,
                     remove_intercept = FALSE,
                     test = FALSE,
                     penalty = 'ridge',
-                    penalty_add_cov = FALSE) {
+                    penalty_add_cov = FALSE,
+                    penalty_lambda = 1) {
 
   X_orig = x
   X = as.matrix(cbind(1,x)) # adding an intercept
@@ -255,7 +256,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(new_trees[[j]], alpha, beta, n_cov_new_tree) # If penalty_add_cov == TRUE, we penalise 'extra' when including a new covariate.
+        get_tree_prior(new_trees[[j]], alpha, beta, n_cov_new_tree, penalty_lambda) # If penalty_add_cov == TRUE, we penalise 'extra' when including a new covariate.
 
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
@@ -269,7 +270,7 @@ gam_bart = function(x,
                                     ancestors,
                                     remove_intercept,
                                     penalty_matrix) +
-        get_tree_prior(curr_trees[[j]], alpha, beta, n_cov_old_tree)
+        get_tree_prior(curr_trees[[j]], alpha, beta, n_cov_old_tree, penalty_lambda)
 
       # Exponentiate the results above
       a = exp(l_new - l_old)

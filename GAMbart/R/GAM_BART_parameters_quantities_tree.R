@@ -162,7 +162,7 @@ update_z = function(y, prediction){
 
 # Get tree priors ---------------------------------------------------------
 
-get_tree_prior = function(tree, alpha, beta, n_cov) {
+get_tree_prior = function(tree, alpha, beta, n_cov, penalty_lambda) {
 
   # Need to work out the depth of the tree
   # First find the level of each node, then the depth is the maximum of the level
@@ -194,7 +194,7 @@ get_tree_prior = function(tree, alpha, beta, n_cov) {
   }
 
   if (n_cov > 0){
-    log_prob_inclusion = dtpois(n_cov, lambda = 1, a = 0, log = TRUE)
+    log_prob_inclusion = dtpois(n_cov, lambda = penalty_lambda, a = 0, log = TRUE)
   }
   if (n_cov == 0) {log_prob_inclusion = 0}
 
