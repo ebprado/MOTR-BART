@@ -120,9 +120,12 @@ update_sigma2_e <- function(S_e, n_e, a_e, b_e){
 
 update_z = function(y, prediction){
 
-  z = rnorm(length(y), prediction, sd=1)
-  z[y==0] = pmin(z[y==0], 0)
-  z[y==1] = pmax(z[y==1], 0)
+  ny0 = sum(y==0)
+  ny1 = sum(y==1)
+  z = rep(NA, length(y))
+
+  z[y==0] = rtruncnorm(ny0, a = -Inf, b=0,   mean = prediction[y==0], 1)
+  z[y==1] = rtruncnorm(ny1, a = 0   , b=Inf, mean = prediction[y==1], 1)
 
   return(z)
 }
