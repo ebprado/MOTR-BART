@@ -4,6 +4,7 @@
 #' @importFrom splines 'bs'
 #' @importFrom Matrix 'bdiag' 'forceSymmetric'
 #' @importFrom extraDistr 'dtpois' 'rdirichlet'
+#' @importFrom truncnorm 'rtruncnorm'
 
 # sparse = TRUE
 # vars_inter_slope = TRUE
