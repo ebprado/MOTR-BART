@@ -2,6 +2,7 @@
 #' @importFrom mvtnorm 'rmvnorm'
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm'
 #' @importFrom MCMCpack 'rdirichlet'
+#' @importFrom truncnorm 'rtruncnorm'
 
 motr_bart = function(x,
                      y,
@@ -436,3 +437,6 @@ motr_bart_class = function(x,
               s = s_prob_store))
 
 } # End main function
+
+
+
