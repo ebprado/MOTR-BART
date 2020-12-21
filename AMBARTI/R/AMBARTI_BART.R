@@ -1,7 +1,8 @@
 #' @export
 #' @importFrom mvtnorm 'rmvnorm'
-#' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm'
+#' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'aggregate' 'contrasts' 'model.matrix'
 #' @importFrom MCMCpack 'rdirichlet'
+#' @importFrom truncnorm 'rtruncnorm'
 
 # sparse = FALSE
 # ntrees = 10
