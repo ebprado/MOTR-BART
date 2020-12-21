@@ -1,0 +1,13 @@
+Package: AMBARTI
+Type: Package
+Title: Additive Main Effect Bayesian Additive Regression Tree interaction models (AMBARTI)
+Version: 0.1.0
+Author@E: person('Estevão', 'B. Prado', email = 'estevao.prado@hotmail.com', role=c('aut', 'cre'))
+Description: This package performs Additive Main Effect Bayesian Additive Regression Tree interaction models (AMBARTI) for continuous. For more details about MOTR-BART, see Estevão B Prado, Rafael A Moral, Andrew C Parnell (2020). Bayesian Additive Regression Trees with Model Trees. ArXiv preprint ArXiv: 2006.07493.
+Author: Estevão B. Prado [aut, cre]
+Maintainer: Estevão B. Prado <estevao.prado@hotmail.com>
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Imports: MASS, mvtnorm, statmod, stats, MCMCpack, truncnorm
+RoxygenNote: 7.1.1
