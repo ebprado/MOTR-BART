@@ -29,6 +29,7 @@
 ambarti = function(x,
                    y,
                    sparse = TRUE,
+                   skip_trees = FALSE,
                    ntrees = 10,
                    node_min_size = 5,
                    alpha = 0.95,
@@ -130,76 +131,79 @@ ambarti = function(x,
       e_store[curr,] = e_
     }
 
-    # Start looping through trees
-    for (j in 1:ntrees) {
+    if (skip_trees == FALSE){
 
-      # Calculate partial residuals for current tree
-      if(ntrees > 1) {
-        current_partial_residuals = y_scale -
-          get_predictions(curr_trees[-j], x, single_tree = ntrees == 2)
-      } else {
-        current_partial_residuals = y_scale
-      }
+      # Start looping through trees
+      for (j in 1:ntrees) {
 
-      # Propose a new tree via grow/change/prune/swap
-      type = sample(c('grow', 'prune', 'change', 'swap'), 1)
-      if(i < max(floor(0.1*nburn), 10)) type = 'grow' # Grow for the first few iterations
-
-      # Generate a new tree based on the current
-      new_trees[[j]] = update_tree(y = y_scale,
-                                   X = x,
-                                   type = type,
-                                   curr_tree = curr_trees[[j]],
-                                   node_min_size = node_min_size,
-                                   s = s)
-
-      # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
-      l_new = tree_full_conditional(new_trees[[j]],
-                                    x,
-                                    current_partial_residuals,
-                                    sigma2,
-                                    sigma2_mu) +
-        get_tree_prior(new_trees[[j]], alpha, beta)
-
-      # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
-      l_old = tree_full_conditional(curr_trees[[j]],
-                                    x,
-                                    current_partial_residuals,
-                                    sigma2,
-                                    sigma2_mu) +
-        get_tree_prior(curr_trees[[j]], alpha, beta)
-
-      # Exponentiate the results above
-      a = exp(l_new - l_old)
-
-      # The current tree "becomes" the new tree, if the latter is better
-
-      if(a > runif(1)) {
-        curr_trees[[j]] = new_trees[[j]]
-
-        if (type =='change'){
-          var_count[curr_trees[[j]]$var[1] - 1] = var_count[curr_trees[[j]]$var[1] - 1] - 1
-          var_count[curr_trees[[j]]$var[2] - 1] = var_count[curr_trees[[j]]$var[2] - 1] + 1
+        # Calculate partial residuals for current tree
+        if(ntrees > 1) {
+          current_partial_residuals = y_scale -
+            get_predictions(curr_trees[-j], x, single_tree = ntrees == 2)
+        } else {
+          current_partial_residuals = y_scale
         }
 
-        if (type=='grow'){
-          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] + 1 } # -1 because of the intercept in X
+        # Propose a new tree via grow/change/prune/swap
+        # type = sample(c('grow', 'prune', 'change', 'swap'), 1)
+        type = sample(c('grow', 'prune', 'change'), 1)
+        if(i < max(floor(0.1*nburn), 10)) type = 'grow' # Grow for the first few iterations
 
-        if (type=='prune'){
-          var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] - 1 } # -1 because of the intercept in X
-      }
+        # Generate a new tree based on the current
+        new_trees[[j]] = update_tree(y = y_scale,
+                                     X = x,
+                                     type = type,
+                                     curr_tree = curr_trees[[j]],
+                                     node_min_size = node_min_size,
+                                     s = s)
 
-      # Update mu whether tree accepted or not
-      curr_trees[[j]] = simulate_mu(curr_trees[[j]],
-                                    current_partial_residuals,
-                                    sigma2,
-                                    sigma2_mu)
+        # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
+        l_new = tree_full_conditional(new_trees[[j]],
+                                      x,
+                                      current_partial_residuals,
+                                      sigma2,
+                                      sigma2_mu) +
+          get_tree_prior(new_trees[[j]], alpha, beta)
 
-    } # End loop through trees
+        # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
+        l_old = tree_full_conditional(curr_trees[[j]],
+                                      x,
+                                      current_partial_residuals,
+                                      sigma2,
+                                      sigma2_mu) +
+          get_tree_prior(curr_trees[[j]], alpha, beta)
 
-    # Updating the predictions (y_hat)
-    bart_predictions = get_predictions(curr_trees, x, single_tree = ntrees == 1)
+        # Exponentiate the results above
+        a = exp(l_new - l_old)
 
+        # The current tree "becomes" the new tree, if the latter is better
+
+        if(a > runif(1)) {
+          curr_trees[[j]] = new_trees[[j]]
+
+          if (type =='change'){
+            var_count[curr_trees[[j]]$var[1] - 1] = var_count[curr_trees[[j]]$var[1] - 1] - 1
+            var_count[curr_trees[[j]]$var[2] - 1] = var_count[curr_trees[[j]]$var[2] - 1] + 1
+          }
+
+          if (type=='grow'){
+            var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] + 1 } # -1 because of the intercept in X
+
+          if (type=='prune'){
+            var_count[curr_trees[[j]]$var - 1] = var_count[curr_trees[[j]]$var - 1] - 1 } # -1 because of the intercept in X
+        }
+
+        # Update mu whether tree accepted or not
+        curr_trees[[j]] = simulate_mu(curr_trees[[j]],
+                                      current_partial_residuals,
+                                      sigma2,
+                                      sigma2_mu)
+
+      } # End loop through trees
+
+    }
+
+    # Update the estimates of genotypes and environments
     aux_g = update_g(y_scale, bart_predictions, estimate_g, cov_g, estimate_e, sigma2, mu_g, sigma2_g, classes_g, ng)
     aux_e = update_e(y_scale, bart_predictions, estimate_e, cov_e, estimate_g, sigma2, mu_e, sigma2_e, classes_e, ne)
 
@@ -208,6 +212,9 @@ ambarti = function(x,
 
     g_ = aux_g$sample_g
     e_ = aux_e$sample_e
+
+    # Updating the predictions (y_hat)
+    bart_predictions = get_predictions(curr_trees, x, single_tree = ntrees == 1)
 
     y_hat = estimate_g + estimate_e + bart_predictions
 
@@ -230,7 +237,6 @@ ambarti = function(x,
 
   return(list(trees = tree_store,
               sigma2 = sigma2_store,
-              # y_hat = y_hat_store*y_sd + y_mean,
               y_hat = y_hat_store*y_sd + y_mean,
               y_hat_bart = bart_store*y_sd + y_mean,
               npost = npost,
@@ -243,7 +249,7 @@ ambarti = function(x,
               s = s_prob_store,
               sigma2_g = sigma2_g_store,
               sigma2_e = sigma2_e_store,
-              g = g_store,
-              e = e_store))
+              g = g_store*y_sd,
+              e = e_store*y_sd))
 
 } # End main function
