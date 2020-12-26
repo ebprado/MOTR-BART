@@ -67,9 +67,9 @@ simulate_mu = function(tree, R, sigma2, sigma2_mu) {
 
 # Update sigma2 -------------------------------------------------------------
 
-update_g <- function(y, y_hat, estimate_g, cov_g, estimate_e, sigma2, mu_g, sigma2_g, classes_g, ng){
+update_g <- function(y, yhat_bart, cov_g, estimate_e, sigma2, mu_g, sigma2_g, classes_g, ng){
 
-  sumY_e_Mu = aggregate(y - estimate_e - y_hat, by = list(cov_g), sum)[,2]
+  sumY_e_Mu = aggregate(y - estimate_e - yhat_bart, by = list(cov_g), sum)[,2]
 
   sample_g = rnorm(length(ng),
         mean = (sumY_e_Mu/sigma2 + mu_g/sigma2_g)/(ng/sigma2 + 1/sigma2_g),
@@ -84,9 +84,9 @@ update_g <- function(y, y_hat, estimate_g, cov_g, estimate_e, sigma2, mu_g, sigm
               sample_g = sample_g))
 }
 
-update_e <- function(y, y_hat, estimate_e, cov_e, estimate_g, sigma2, mu_e, sigma2_e, classes_e, ne){
+update_e <- function(y, yhat_bart, cov_e, estimate_g, sigma2, mu_e, sigma2_e, classes_e, ne){
 
-  sumY_g_Mu = aggregate(y - estimate_g - y_hat, by = list(cov_e), sum)[,2]
+  sumY_g_Mu = aggregate(y - estimate_g - yhat_bart, by = list(cov_e), sum)[,2]
 
   sample_e = rnorm(length(ne),
                    mean = (sumY_g_Mu/sigma2 + mu_e/sigma2_e)/(ne/sigma2 + 1/sigma2_e),

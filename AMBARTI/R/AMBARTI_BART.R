@@ -139,9 +139,9 @@ ambarti = function(x,
         # Calculate partial residuals for current tree
         if(ntrees > 1) {
           current_partial_residuals = y_scale -
-            get_predictions(curr_trees[-j], x, single_tree = ntrees == 2)
+            (estimate_g + estimate_e + get_predictions(curr_trees[-j], x, single_tree = ntrees == 2))
         } else {
-          current_partial_residuals = y_scale
+          current_partial_residuals = y_scale - (estimate_g + estimate_e)
         }
 
         # Propose a new tree via grow/change/prune/swap
@@ -203,18 +203,18 @@ ambarti = function(x,
 
     }
 
+    # Updating the predictions (y_hat)
+    bart_predictions = get_predictions(curr_trees, x, single_tree = ntrees == 1)
+
     # Update the estimates of genotypes and environments
-    aux_g = update_g(y_scale, bart_predictions, estimate_g, cov_g, estimate_e, sigma2, mu_g, sigma2_g, classes_g, ng)
-    aux_e = update_e(y_scale, bart_predictions, estimate_e, cov_e, estimate_g, sigma2, mu_e, sigma2_e, classes_e, ne)
+    aux_g = update_g(y_scale, bart_predictions, cov_g, estimate_e, sigma2, mu_g, sigma2_g, classes_g, ng)
+    aux_e = update_e(y_scale, bart_predictions, cov_e, estimate_g, sigma2, mu_e, sigma2_e, classes_e, ne)
 
     estimate_g <- aux_g$estimate_g
     estimate_e <- aux_e$estimate_e
 
     g_ = aux_g$sample_g
     e_ = aux_e$sample_e
-
-    # Updating the predictions (y_hat)
-    bart_predictions = get_predictions(curr_trees, x, single_tree = ntrees == 1)
 
     y_hat = estimate_g + estimate_e + bart_predictions
 
