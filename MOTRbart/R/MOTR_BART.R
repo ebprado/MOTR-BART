@@ -199,7 +199,7 @@ motr_bart = function(x,
   cat('\n') # Make sure progress bar ends on a new line
 
   return(list(trees = tree_store,
-              sigma2 = sigma2_store,
+              sigma2 = sigma2_store*y_sd^2,
               y_hat = y_hat_store*y_sd + y_mean,
               center_x = center,
               scale_x = scale,

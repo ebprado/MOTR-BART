@@ -203,7 +203,7 @@ ambarti = function(x,
 
     }
 
-    # Updating the predictions (y_hat)
+    # Updating the BART predictions
     bart_predictions = get_predictions(curr_trees, x, single_tree = ntrees == 1)
 
     # Update the estimates of genotypes and environments
