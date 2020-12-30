@@ -49,6 +49,7 @@ motr_bart = function(x,
   var_count_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
   s_prob_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
   vars_betas_store = matrix(0, ncol = 2, nrow = store_size)
+  tree_fits_store = matrix(0, ncol = ntrees, nrow = length(y))
 
   # Scale the response target variable
   y_mean = mean(y)
@@ -98,12 +99,14 @@ motr_bart = function(x,
     for (j in 1:ntrees) {
 
       # Calculate partial residuals for current tree
-      if(ntrees > 1) {
-        current_partial_residuals = y_scale -
-          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2, ancestors)
-      } else {
-        current_partial_residuals = y_scale
-      }
+      # if(ntrees > 1) {
+      #   current_partial_residuals = y_scale -
+      #     get_predictions(curr_trees[-j], X, single_tree = ntrees == 2, ancestors)
+      # } else {
+      #   current_partial_residuals = y_scale
+      # }
+
+      current_partial_residuals = y_scale - predictions + tree_fits_store[,j]
 
       # Propose a new tree via grow/change/prune/swap
       type = sample(c('grow', 'prune', 'change', 'swap'), 1)
@@ -173,10 +176,15 @@ motr_bart = function(x,
                                     nu,
                                     ancestors)
 
+      current_fit = get_predictions(curr_trees[j], X, single_tree = TRUE, ancestors)
+      predictions = predictions - tree_fits_store[,j] # subtract the old fit
+      predictions = predictions + current_fit # add the new fit
+      tree_fits_store[,j] = current_fit # update the new fit
+
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, ancestors)
+    # predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, ancestors)
 
     sum_of_squares = sum((y_scale - predictions)^2)
 
@@ -267,6 +275,7 @@ motr_bart_class = function(x,
   var_count = rep(0, ncol(X_orig))
   var_count_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
   s_prob_store = matrix(0, ncol = ncol(X_orig), nrow = store_size)
+  tree_fits_store = matrix(0, ncol = ntrees, nrow = length(y))
 
   # Scale the response target variable
   y_mean = mean(y)
@@ -318,12 +327,14 @@ motr_bart_class = function(x,
     for (j in 1:ntrees) {
 
       # Calculate partial residuals for current tree
-      if(ntrees > 1) {
-        current_partial_residuals = z -
-          get_predictions(curr_trees[-j], X, single_tree = ntrees == 2, ancestors)
-      } else {
-        current_partial_residuals = z
-      }
+      # if(ntrees > 1) {
+      #   current_partial_residuals = z -
+      #     get_predictions(curr_trees[-j], X, single_tree = ntrees == 2, ancestors)
+      # } else {
+      #   current_partial_residuals = z
+      # }
+
+      current_partial_residuals = y_scale - predictions + tree_fits_store[,j]
 
       # Propose a new tree via grow/change/prune/swap
       type = sample(c('grow', 'prune', 'change', 'swap'), 1)
@@ -392,10 +403,15 @@ motr_bart_class = function(x,
                                     nu,
                                     ancestors)
 
+      current_fit = get_predictions(curr_trees[j], X, single_tree = TRUE, ancestors)
+      predictions = predictions - tree_fits_store[,j] # subtract the old fit
+      predictions = predictions + current_fit # add the new fit
+      tree_fits_store[,j] = current_fit # update the new fit
+
     } # End loop through trees
 
     # Updating the predictions (y_hat)
-    predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, ancestors)
+    # predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, ancestors)
 
     # Update z (latent variable)
     z = update_z(y, predictions)
@@ -437,6 +453,3 @@ motr_bart_class = function(x,
               s = s_prob_store))
 
 } # End main function
-
-
-

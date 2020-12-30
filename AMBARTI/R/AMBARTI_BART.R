@@ -93,7 +93,6 @@ ambarti = function(x,
   sigma2_psi = diag(p)*sigma2_psi
   sigma2_psi_inv = solve(sigma2_psi)
   yhat_linear_comp = rep(0, length(y))
-  yhat_bart = rep(0, length(y))
 
   # Create a list of trees for the initial stump
   curr_trees = create_stump(num_trees = ntrees,
@@ -103,7 +102,7 @@ ambarti = function(x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  bart_predictions = get_predictions(curr_trees, x, single_tree = ntrees == 1)
+  yhat_bart = get_predictions(curr_trees, x, single_tree = ntrees == 1)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
@@ -202,7 +201,7 @@ ambarti = function(x,
       current_fit = get_predictions(curr_trees[j], x, single_tree = TRUE)
       yhat_bart = yhat_bart - tree_fits_store[,j] # subtract the old fit
       yhat_bart = yhat_bart + current_fit # add the new fit
-      tree_fits_store[,j] = current_fit # store the new fit
+      tree_fits_store[,j] = current_fit # update the new fit
 
       } # End loop through trees
 
