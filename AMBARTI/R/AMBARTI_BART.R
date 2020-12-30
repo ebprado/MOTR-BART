@@ -199,7 +199,7 @@ ambarti = function(x,
                                       sigma2,
                                       sigma2_mu)
 
-      current_fit = get_predictions(curr_trees[j], x, single_tree = ntrees == 2)
+      current_fit = get_predictions(curr_trees[j], x, single_tree = TRUE)
       yhat_bart = yhat_bart - tree_fits_store[,j] # subtract the old fit
       yhat_bart = yhat_bart + current_fit # add the new fit
       tree_fits_store[,j] = current_fit # store the new fit
