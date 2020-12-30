@@ -81,6 +81,7 @@ ambarti = function(x,
   var_count_store = matrix(0, ncol = ncol(x), nrow = store_size)
   s_prob_store = matrix(0, ncol = ncol(x), nrow = store_size)
   beta_hat_store = matrix(0, ncol = ncol(x), nrow = store_size)
+  tree_fits_store = matrix(0, ncol = ntrees, nrow = length(y))
 
   # Scale the response target variable
   y_mean = mean(y)
@@ -92,6 +93,7 @@ ambarti = function(x,
   sigma2_psi = diag(p)*sigma2_psi
   sigma2_psi_inv = solve(sigma2_psi)
   yhat_linear_comp = rep(0, length(y))
+  yhat_bart = rep(0, length(y))
 
   # Create a list of trees for the initial stump
   curr_trees = create_stump(num_trees = ntrees,
@@ -131,12 +133,16 @@ ambarti = function(x,
       for (j in 1:ntrees) {
 
         # Calculate partial residuals for current tree
-        if(ntrees > 1) {
-          current_partial_residuals = y_scale -
-            (yhat_linear_comp + get_predictions(curr_trees[-j], x, single_tree = ntrees == 2))
-        } else {
-          current_partial_residuals = y_scale - (yhat_linear_comp)
-        }
+        # if(ntrees > 1) {
+        #   current_partial_residuals = y_scale -
+        #     (yhat_linear_comp + get_predictions(curr_trees[-j], x, single_tree = ntrees == 2))
+        # } else {
+        #   current_partial_residuals = y_scale - (yhat_linear_comp)
+        # }
+
+        current_partial_residuals = y_scale -
+          (yhat_bart + yhat_linear_comp) +
+          tree_fits_store[,j]
 
         # Propose a new tree via grow/change/prune/swap
         # type = sample(c('grow', 'prune', 'change', 'swap'), 1)
@@ -193,12 +199,17 @@ ambarti = function(x,
                                       sigma2,
                                       sigma2_mu)
 
+      current_fit = get_predictions(curr_trees[j], x, single_tree = ntrees == 2)
+      yhat_bart = yhat_bart - tree_fits_store[,j] # subtract the old fit
+      yhat_bart = yhat_bart + current_fit # add the new fit
+      tree_fits_store[,j] = current_fit # store the new fit
+
       } # End loop through trees
 
     }
 
     # Updating BART predictions
-    yhat_bart = get_predictions(curr_trees, x, single_tree = ntrees == 1)
+    # yhat_bart = get_predictions(curr_trees, x, single_tree = ntrees == 1)
 
     beta_hat = update_linear_component(y_scale, yhat_bart, x, sigma2, sigma2_psi_inv)
 
