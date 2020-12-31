@@ -52,7 +52,7 @@ bart = function(   x,
   new_trees = curr_trees
 
   # Initialise the predicted values to zero
-  yhat = get_predictions(curr_trees, x, single_tree = ntrees == 1)
+  y_hat = get_predictions(curr_trees, x, single_tree = ntrees == 1)
 
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
