@@ -74,6 +74,19 @@ motr_bart = function(x,
   # Initialise the predicted values to zero
   predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, ancestors)
 
+  # Initialise the values of the log marginalised likelihood for the stumps
+  l_old = rep(tree_full_conditional(curr_trees[[1]],
+                                X,
+                                y_scale,
+                                sigma2,
+                                V,
+                                inv_V,
+                                nu,
+                                lambda,
+                                tau_b,
+                                ancestors) +
+    get_tree_prior(curr_trees[[1]], alpha, beta), ntrees)
+
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
                              style = 3, width = 60,
@@ -97,14 +110,6 @@ motr_bart = function(x,
 
     # Start looping through trees
     for (j in 1:ntrees) {
-
-      # Calculate partial residuals for current tree
-      # if(ntrees > 1) {
-      #   current_partial_residuals = y_scale -
-      #     get_predictions(curr_trees[-j], X, single_tree = ntrees == 2, ancestors)
-      # } else {
-      #   current_partial_residuals = y_scale
-      # }
 
       current_partial_residuals = y_scale - predictions + tree_fits_store[,j]
 
@@ -133,25 +138,14 @@ motr_bart = function(x,
                                     ancestors) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
-      # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
-      l_old = tree_full_conditional(curr_trees[[j]],
-                                    X,
-                                    current_partial_residuals,
-                                    sigma2,
-                                    V,
-                                    inv_V,
-                                    nu,
-                                    lambda,
-                                    tau_b,
-                                    ancestors) +
-        get_tree_prior(curr_trees[[j]], alpha, beta)
-
       # Exponentiate the results above
-      a = exp(l_new - l_old)
+      a = exp(l_new - l_old[j])
 
       # The current tree "becomes" the new tree, if the latter is better
 
       if(a > runif(1)) {
+        l_old[j] = l_new # the new proposed (and accepted) tree becomes the current tree
+
         curr_trees[[j]] = new_trees[[j]]
 
         if (type =='change'){
