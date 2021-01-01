@@ -73,7 +73,7 @@ bart = function(   x,
   # Initialise the values of the log marginalised likelihood for the stumps
   l_old = rep(tree_full_conditional(curr_trees[[1]],
                                 x,
-                                current_partial_residuals,
+                                y_scale,
                                 sigma2,
                                 sigma2_mu) +
     get_tree_prior(curr_trees[[1]], alpha, beta), ntrees)
