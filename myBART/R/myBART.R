@@ -5,6 +5,24 @@
 #' @importFrom truncnorm 'rtruncnorm'
 #' @importFrom rmutil 'ddoublepois'
 
+x
+y
+sparse = FALSE
+ntrees = 10
+node_min_size = 5
+alpha = 0.95
+beta = 2
+nu = 3
+lambda = 0.1
+mu_mu = 0
+sigma2 = 1
+sigma2_mu = 1
+nburn = 100
+npost = 1000
+nthin = 1
+lambda_cov = 0.4
+nu_cov = 2
+
 bart = function(   x,
                    y,
                    sparse = TRUE,
@@ -57,16 +75,6 @@ bart = function(   x,
   # Initialise the predicted values to zero
   y_hat = get_predictions(curr_trees, x, single_tree = ntrees == 1)
 
-  # Initialise the values of the log marginalised likelihood for the stumps
-  l_old = rep(tree_full_conditional(curr_trees[[1]],
-                                x,
-                                y_scale,
-                                sigma2,
-                                sigma2_mu) +
-    get_tree_prior(curr_trees[[1]], alpha, beta) +
-      get_num_cov_prior(curr_trees[[1]], lambda_cov, nu_cov), ntrees)
-
-
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
                              style = 3, width = 60,
@@ -105,23 +113,26 @@ bart = function(   x,
                                      node_min_size = node_min_size,
                                      s = s)
 
+        # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
+        l_old = tree_full_conditional(curr_trees[[j]],
+                                      current_partial_residuals,
+                                      sigma2,
+                                      sigma2_mu) +
+          get_tree_prior(curr_trees[[j]], alpha, beta)
+
         # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
+
         l_new = tree_full_conditional(new_trees[[j]],
-                                      x,
                                       current_partial_residuals,
                                       sigma2,
                                       sigma2_mu) +
           get_tree_prior(new_trees[[j]], alpha, beta) # +
-          #get_num_cov_prior(curr_trees[[1]], lambda_cov, nu_cov)
+          #get_num_cov_prior(new_trees[[j]], lambda_cov, nu_cov)
 
         # Exponentiate the results above
-        a = exp(l_new - l_old[j])
-
-        # The current tree "becomes" the new tree, if the latter is better
+        a = exp(l_new - l_old)
 
         if(a > runif(1)) {
-          l_old[j] = l_new # the new proposed (and accepted) tree becomes the current tree
-
           curr_trees[[j]] = new_trees[[j]]
 
           if (type =='change'){
@@ -149,6 +160,7 @@ bart = function(   x,
 
       } # End loop through trees
 
+    # y_hat = get_predictions(curr_trees, x, single_tree = ntrees == 1)
     sum_of_squares = sum((y_scale - y_hat)^2)
 
     # Update sigma2 (variance of the residuals)

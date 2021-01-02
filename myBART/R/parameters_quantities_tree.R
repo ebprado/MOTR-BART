@@ -12,7 +12,7 @@
 # 6. get_number_distinct_cov: counts the number of distinct covariates that are used in a tree to create the splitting rules
 # Compute the full conditionals -------------------------------------------------
 
-tree_full_conditional = function(tree, X, R, sigma2, sigma2_mu) {
+tree_full_conditional = function(tree, R, sigma2, sigma2_mu) {
 
   # Function to compute log full conditional distirbution for an individual tree
   # R is a vector of partial residuals
@@ -67,65 +67,8 @@ simulate_mu = function(tree, R, sigma2, sigma2_mu) {
 
 # Update sigma2 -------------------------------------------------------------
 
-update_linear_component <- function(y, yhat_bart, x, sigma2, sigma2_psi_inv){
-
-  y_star = y - yhat_bart
-  Sigma_psi = solve(t(x)%*%x / sigma2 + sigma2_psi_inv)
-  Mu_psi = Sigma_psi%*%(t(x)%*%y_star/sigma2)
-
-  beta_hat = rmvnorm(1,
-                     mean = Mu_psi,
-                     sigma = Sigma_psi)
-
-  return(t(beta_hat))
-}
-
-update_g <- function(y, yhat_bart, cov_g, estimate_e, sigma2, mu_g, sigma2_g, classes_g, ng){
-
-  sumY_e_Mu = aggregate(y - estimate_e - yhat_bart, by = list(cov_g), sum)[,2]
-
-  sample_g = rnorm(length(ng),
-        mean = (sumY_e_Mu/sigma2 + mu_g/sigma2_g)/(ng/sigma2 + 1/sigma2_g),
-        sd = 1/sqrt(ng/sigma2 + 1/sigma2_g))
-
-  new_g = rep(NA, length(y))
-
-  for (i in 1:length(classes_g)){
-    new_g[which(classes_g[i]==cov_g)] = sample_g[i]
-  }
-  return(list(estimate_g = new_g,
-              sample_g = sample_g))
-}
-
-update_e <- function(y, yhat_bart, cov_e, estimate_g, sigma2, mu_e, sigma2_e, classes_e, ne){
-
-  sumY_g_Mu = aggregate(y - estimate_g - yhat_bart, by = list(cov_e), sum)[,2]
-
-  sample_e = rnorm(length(ne),
-                   mean = (sumY_g_Mu/sigma2 + mu_e/sigma2_e)/(ne/sigma2 + 1/sigma2_e),
-                   sd = 1/sqrt(ne/sigma2 + 1/sigma2_e))
-
-  new_e = rep(NA, length(y))
-
-  for (i in 1:length(classes_e)){
-    new_e[which(classes_e[i]==cov_e)] = sample_e[i]
-  }
-  return(list(estimate_e = new_e,
-              sample_e = sample_e))
-}
-
 update_sigma2 <- function(S, n, nu, lambda){
   u = 1/rgamma(1, shape = (n + nu)/2, rate = (S + nu*lambda)/2)
-  return(u)
-}
-
-update_sigma2_g <- function(S_g, n_g, a_g, b_g){
-  u = 1/rgamma(1, shape=(n_g/2 + a_g), rate=(S_g/2 + b_g))
-  return(u)
-}
-
-update_sigma2_e <- function(S_e, n_e, a_e, b_e){
-  u = 1/rgamma(1, shape=(n_e/2 + a_e), rate=(S_e/2 + b_e))
   return(u)
 }
 
@@ -194,7 +137,6 @@ get_num_cov_prior <- function(tree, lambda_cov, nu_cov){
   } else {
     log_prior_num_cov = 0
   }
-
 
   return(log_prior_num_cov)
 

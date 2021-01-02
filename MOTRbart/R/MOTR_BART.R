@@ -74,19 +74,6 @@ motr_bart = function(x,
   # Initialise the predicted values to zero
   predictions = get_predictions(curr_trees, X, single_tree = ntrees == 1, ancestors)
 
-  # Initialise the values of the log marginalised likelihood for the stumps
-  l_old = rep(tree_full_conditional(curr_trees[[1]],
-                                X,
-                                y_scale,
-                                sigma2,
-                                V,
-                                inv_V,
-                                nu,
-                                lambda,
-                                tau_b,
-                                ancestors) +
-    get_tree_prior(curr_trees[[1]], alpha, beta), ntrees)
-
   # Set up a progress bar
   pb = utils::txtProgressBar(min = 1, max = TotIter,
                              style = 3, width = 60,
@@ -125,6 +112,19 @@ motr_bart = function(x,
                                    node_min_size = node_min_size,
                                    s = s)
 
+      # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
+      l_old = tree_full_conditional(curr_trees[[j]],
+                            X,
+                            y_scale,
+                            sigma2,
+                            V,
+                            inv_V,
+                            nu,
+                            lambda,
+                            tau_b,
+                            ancestors) +
+        get_tree_prior(curr_trees[[j]], alpha, beta)
+
       # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_new = tree_full_conditional(new_trees[[j]],
                                     X,
@@ -139,14 +139,11 @@ motr_bart = function(x,
         get_tree_prior(new_trees[[j]], alpha, beta)
 
       # Exponentiate the results above
-      a = exp(l_new - l_old[j])
-
-      # The current tree "becomes" the new tree, if the latter is better
+      a = exp(l_new - l_old)
 
       if(a > runif(1)) {
-        l_old[j] = l_new # the new proposed (and accepted) tree becomes the current tree
 
-        curr_trees[[j]] = new_trees[[j]]
+        curr_trees[[j]] = new_trees[[j]] # The current tree "becomes" the new tree, if the latter is better
 
         if (type =='change'){
           var_count[curr_trees[[j]]$var[1] - 1] = var_count[curr_trees[[j]]$var[1] - 1] - 1
