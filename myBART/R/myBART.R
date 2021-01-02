@@ -3,22 +3,7 @@
 #' @importFrom stats 'rgamma' 'runif' 'dnorm' 'sd' 'rnorm' 'pnorm' 'aggregate' 'contrasts' 'model.matrix'
 #' @importFrom MCMCpack 'rdirichlet'
 #' @importFrom truncnorm 'rtruncnorm'
-
-# x
-# y
-# sparse = TRUE
-# ntrees = 10
-# node_min_size = 5
-# alpha = 0.95
-# beta = 2
-# nu = 3
-# lambda = 0.1
-# mu_mu = 0
-# sigma2 = 1
-# sigma2_mu = 1
-# nburn = 1000
-# npost = 1000
-# nthin = 1
+#' @importFrom rmutil 'ddoublepois'
 
 bart = function(   x,
                    y,
@@ -34,7 +19,9 @@ bart = function(   x,
                    sigma2_mu = 1,
                    nburn = 1000,
                    npost = 1000,
-                   nthin = 1) {
+                   nthin = 1,
+                   lambda_cov = 0.4,
+                   nu_cov = 2) {
 
   # Extract control parameters
   node_min_size = node_min_size
@@ -76,7 +63,8 @@ bart = function(   x,
                                 y_scale,
                                 sigma2,
                                 sigma2_mu) +
-    get_tree_prior(curr_trees[[1]], alpha, beta), ntrees)
+    get_tree_prior(curr_trees[[1]], alpha, beta) +
+      get_num_cov_prior(curr_trees[[1]], lambda_cov, nu_cov), ntrees)
 
 
   # Set up a progress bar
@@ -123,7 +111,8 @@ bart = function(   x,
                                       current_partial_residuals,
                                       sigma2,
                                       sigma2_mu) +
-          get_tree_prior(new_trees[[j]], alpha, beta)
+          get_tree_prior(new_trees[[j]], alpha, beta) +
+          get_num_cov_prior(curr_trees[[1]], lambda_cov, nu_cov)
 
         # Exponentiate the results above
         a = exp(l_new - l_old[j])

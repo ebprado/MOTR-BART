@@ -9,7 +9,7 @@
 # 4. resample: an auxiliar function
 # 5. get_ancestors: get the ancestors of all terminal nodes in a tree
 # 6. update_s: full conditional of the vector of splitting probability.
-# 7. update_vars_intercepts_slopes: updates the variances of the intercepts and slopes
+# 7. get_number_distinct_cov: given a tree, it returns the number of distinct covariates used to create its structure
 
 # Fill_tree_details -------------------------------------------------------
 
@@ -118,4 +118,14 @@ resample <- function(x, ...) x[sample.int(length(x), size=1), ...]
 update_s = function(var_count, p, alpha_s){
   s_ = rdirichlet(1, alpha_s/p + var_count)
   return(s_)
+}
+
+get_number_distinct_cov <- function(tree){
+
+  # Select the rows that correspond to internal nodes
+  which_terminal = which(tree$tree_matrix[,'terminal'] == 0)
+  # Get the covariates that are used to define the splitting rules
+  num_distinct_cov = length(unique(tree$tree_matrix[which_terminal,'split_variable']))
+
+  return(num_distinct_cov)
 }
