@@ -115,7 +115,7 @@ motr_bart = function(x,
       # CURRENT TREE: compute the log of the marginalised likelihood + log of the tree prior
       l_old = tree_full_conditional(curr_trees[[j]],
                             X,
-                            y_scale,
+                            current_partial_residuals,
                             sigma2,
                             V,
                             inv_V,
