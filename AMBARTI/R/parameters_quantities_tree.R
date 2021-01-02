@@ -4,12 +4,13 @@
 #              and the marginalised likelihood                             #
 # -------------------------------------------------------------------------#
 
-# 1. simulate_mu: generate the predicted values (mu's)
+# 1. simulate_mu: generates the predicted values (mu's)
 # 2. updata_sigma2: updates the parameters sigma2
 # 3. update_z: updates the latent variables z. This is required for MOTR-BART for classification.
 # 4. get_tree_prior: returns the tree log prior score
 # 5. tree_full_conditional: computes the marginalised likelihood for all nodes for a given tree
 # 6. get_number_distinct_cov: counts the number of distinct covariates that are used in a tree to create the splitting rules
+# 7. update_linear_component:
 # Compute the full conditionals -------------------------------------------------
 
 tree_full_conditional = function(tree, X, R, sigma2, sigma2_mu) {
