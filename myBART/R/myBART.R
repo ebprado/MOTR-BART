@@ -111,8 +111,8 @@ bart = function(   x,
                                       current_partial_residuals,
                                       sigma2,
                                       sigma2_mu) +
-          get_tree_prior(new_trees[[j]], alpha, beta) +
-          get_num_cov_prior(curr_trees[[1]], lambda_cov, nu_cov)
+          get_tree_prior(new_trees[[j]], alpha, beta) # +
+          #get_num_cov_prior(curr_trees[[1]], lambda_cov, nu_cov)
 
         # Exponentiate the results above
         a = exp(l_new - l_old[j])
