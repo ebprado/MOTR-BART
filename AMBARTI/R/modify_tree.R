@@ -162,7 +162,7 @@ grow_tree = function(X, y, curr_tree, node_min_size, s) {
     }
 
     if(count_bad_trees == max_bad_trees) {
-      curr_tree$var = 1
+      curr_tree$var = 0
       return(curr_tree)
       }
   }
@@ -179,7 +179,7 @@ prune_tree = function(X, y, curr_tree) {
   new_tree = curr_tree
 
   if(nrow(new_tree$tree_matrix) == 1) { # No point in pruning a stump!
-    new_tree$var = 1
+    new_tree$var = 0
     return(new_tree)
   }
 
@@ -266,7 +266,7 @@ change_tree = function(X, y, curr_tree, node_min_size) {
 
   # If current tree is a stump nothing to change
   if(nrow(curr_tree$tree_matrix) == 1) {
-    curr_tree$var = c(1, 1)
+    curr_tree$var = c(0, 0)
     return(curr_tree)
   }
 
@@ -337,7 +337,7 @@ change_tree = function(X, y, curr_tree, node_min_size) {
       bad_trees = FALSE
     }
     if(count_bad_trees == max_bad_trees){
-      curr_tree$var = c(1, 1)
+      curr_tree$var = c(0, 0)
       return(curr_tree)
     }
 
