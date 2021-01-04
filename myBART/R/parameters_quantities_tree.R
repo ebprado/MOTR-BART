@@ -123,19 +123,23 @@ update_z = function(y, prediction){
 
   }
 
-get_num_cov_prior <- function(tree, lambda_cov, nu_cov){
+get_num_cov_prior <- function(tree, lambda_cov, nu_cov, penalise_num_cov){
 
   # Select the rows that correspond to internal nodes
   which_terminal = which(tree$tree_matrix[,'terminal'] == 0)
   # Get the covariates that are used to define the splitting rules
   num_distinct_cov = length(unique(tree$tree_matrix[which_terminal,'split_variable']))
 
-  if (num_distinct_cov > 0){
-    # A zero-truncated double Poisson
-    log_prior_num_cov = ddoublepois(num_distinct_cov, lambda_cov, nu_cov, log = TRUE) -
-      log(1-ddoublepois(0,lambda_cov, nu_cov))
+  if (penalise_num_cov == TRUE){
+    if (num_distinct_cov > 0){
+      # A zero-truncated double Poisson
+      log_prior_num_cov = ddoublepois(num_distinct_cov, lambda_cov, nu_cov, log = TRUE) -
+        log(1-ddoublepois(0,lambda_cov, nu_cov))
+    } else {
+      log_prior_num_cov = 0
+    }
   } else {
-    log_prior_num_cov = 0
+    log_prior_num_cov = 0 # no penalisation
   }
 
   return(log_prior_num_cov)

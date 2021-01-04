@@ -38,6 +38,7 @@ bart = function(   x,
                    nburn = 1000,
                    npost = 1000,
                    nthin = 1,
+                   penalise_num_cov = TRUE,
                    lambda_cov = 0.4,
                    nu_cov = 2) {
 
@@ -119,7 +120,7 @@ bart = function(   x,
                                       sigma2,
                                       sigma2_mu) +
           get_tree_prior(curr_trees[[j]], alpha, beta) +
-          get_num_cov_prior(curr_trees[[j]], lambda_cov, nu_cov)
+          get_num_cov_prior(curr_trees[[j]], lambda_cov, nu_cov, penalise_num_cov)
 
         # NEW TREE: compute the log of the marginalised likelihood + log of the tree prior
         l_new = tree_full_conditional(new_trees[[j]],
@@ -127,7 +128,7 @@ bart = function(   x,
                                       sigma2,
                                       sigma2_mu) +
           get_tree_prior(new_trees[[j]], alpha, beta)  +
-          get_num_cov_prior(new_trees[[j]], lambda_cov, nu_cov)
+          get_num_cov_prior(new_trees[[j]], lambda_cov, nu_cov, penalise_num_cov)
 
         # Exponentiate the results above
         a = exp(l_new - l_old)
