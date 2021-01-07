@@ -5,7 +5,7 @@
 # -------------------------------------------------------------------------#
 
 # 1. simulate_mu: generate the predicted values (mu's)
-# 2. updata_sigma2: updates the parameters sigma2
+# 2. update_sigma2: updates the parameters sigma2
 # 3. update_z: updates the latent variables z. This is required for MOTR-BART for classification.
 # 4. get_tree_prior: returns the tree log prior score
 # 5. tree_full_conditional: computes the marginalised likelihood for all nodes for a given tree

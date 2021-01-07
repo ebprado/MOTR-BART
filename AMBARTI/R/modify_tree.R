@@ -14,8 +14,7 @@
 # Function to create stump ------------------------------------------------
 
 create_stump = function(num_trees,
-                        y,
-                        X) {
+                        y) {
 
   # Each tree is a list of 2 elements
   # The 2 elements are the tree matrix (8 columns), and the node indices
@@ -73,12 +72,13 @@ update_tree = function(y, # Target variable
                                 'swap'),  # Swap existing tree - swap splitting rules for two pairs of terminal nodes
                        curr_tree,         # The current set of trees (not required if type is stump)
                        node_min_size,     # The minimum size of a node to grow
-                       s)                 # probability vector to be used during the growing process
+                       s,                 # probability vector to be used during the growing process
+                       index)
   {
 
   # Call the appropriate function to get the new tree
   new_tree = switch(type,
-                    grow = grow_tree(X, y, curr_tree, node_min_size, s),
+                    grow = grow_tree(X, y, curr_tree, node_min_size, s, index),
                     prune = prune_tree(X, y, curr_tree),
                     change = change_tree(X, y, curr_tree, node_min_size),
                     swap = swap_tree(X, y, curr_tree, node_min_size))
@@ -90,7 +90,7 @@ update_tree = function(y, # Target variable
 
 # Grow_tree function ------------------------------------------------------
 
-grow_tree = function(X, y, curr_tree, node_min_size, s) {
+grow_tree = function(X, y, curr_tree, node_min_size, s, index) {
 
   # Set up holder for new tree
   new_tree = curr_tree
@@ -121,7 +121,7 @@ grow_tree = function(X, y, curr_tree, node_min_size, s) {
                            prob = as.integer(terminal_node_size > node_min_size)) # Choose which node to split, set prob to zero for any nodes that are too small
 
     # Choose a split variable uniformly from all columns (the first one is the intercept)
-    split_variable = sample(1:ncol(X), 1, prob = s)
+    split_variable = sample(index, 1, prob = s)
 
     # Alternatively follow BARTMachine and choose a split value using sample on the internal values of the available
     available_values = sort(unique(X[new_tree$node_indices == node_to_split,

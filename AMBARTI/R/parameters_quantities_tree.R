@@ -13,7 +13,7 @@
 # 7. update_linear_component:
 # Compute the full conditionals -------------------------------------------------
 
-tree_full_conditional = function(tree, X, R, sigma2, sigma2_mu) {
+tree_full_conditional = function(tree, R, sigma2, sigma2_mu) {
 
   # Function to compute log full conditional distirbution for an individual tree
   # R is a vector of partial residuals

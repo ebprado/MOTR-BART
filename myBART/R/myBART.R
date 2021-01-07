@@ -7,7 +7,7 @@
 
 # x
 # y
-# sparse = TRUE
+# sparse = FALSE
 # ntrees = 10
 # node_min_size = 5
 # alpha = 0.95
@@ -22,6 +22,7 @@
 # nthin = 1
 # lambda_cov = 0.4
 # nu_cov = 2
+# penalise_num_cov = FALSE
 
 bart = function(   x,
                    y,
