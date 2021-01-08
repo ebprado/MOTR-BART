@@ -152,6 +152,7 @@ ambarti = function(x,
   sigma2_psi = diag(p)*sigma2_psi
   sigma2_psi_inv = solve(sigma2_psi)
   yhat_linear_comp = rep(0, length(y))
+  yhat_bart = rep(0, length(y))
 
   # Create a list of trees for the initial stump
   curr_trees = create_stump(num_trees = ntrees,
@@ -184,6 +185,18 @@ ambarti = function(x,
       beta_hat_store[curr,] = beta_hat
     }
 
+    ##### TEST #######
+    ##### TEST #######
+    ##### TEST #######
+
+      beta_hat = update_linear_component(y_scale, 0, x, sigma2, sigma2_psi_inv)
+      # beta_hat = update_linear_component(y_scale, yhat_bart, x, sigma2, sigma2_psi_inv)
+      yhat_linear_comp = x%*%beta_hat
+
+    ##### TEST #######
+    ##### TEST #######
+    ##### TEST #######
+
     if (skip_trees == FALSE){
 
       # Start looping through trees
@@ -198,7 +211,7 @@ ambarti = function(x,
 
         # Generate a new tree based on the current
 
-        if (type == 'grow'){
+        if (type == 'grow' || (type=='prune' && nrow(curr_trees[[j]]$tree_matrix) == 1)){
 
           # Below, there are two calls because we need to add an interaction of genotype and then
           # add to the same tree an interaction of environment, otherwise we run the risk of allowing
@@ -221,14 +234,12 @@ ambarti = function(x,
                                        s = s_e,
                                        index = ind_x_e)
           var2 = new_trees[[j]]$var
-        }
+        } else {
 
         # Our context, we can't prune a terminal node because we run the risk of removing either
         # a genotype or an environment. If we remove one of them, the predicted values
         # from the tree will be confounded with the main effect associated to the enviroment/genotype
         # removed.
-
-        if (type=='prune'){
 
           new_trees[[j]] = create_stump(num_trees = 1,
                                         y = y_scale)[[1]]
@@ -278,10 +289,10 @@ ambarti = function(x,
 
     }
 
-    beta_hat = update_linear_component(y_scale, yhat_bart, x, sigma2, sigma2_psi_inv)
-
-    # Updating predictions from the linear component
-    yhat_linear_comp = x%*%beta_hat
+    # beta_hat = update_linear_component(y_scale, yhat_bart, x, sigma2, sigma2_psi_inv)
+    #
+    # # Updating predictions from the linear component
+    # yhat_linear_comp = x%*%beta_hat
 
     # Updating the final predictions
     y_hat = yhat_linear_comp + yhat_bart
