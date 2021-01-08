@@ -322,7 +322,10 @@ ambarti = function(x,
               y_sd = y_sd,
               # var_count_store = var_count_store,
               s = s_prob_store,
-              beta_hat = beta_hat_store*y_sd
-              ))
+              beta_hat = beta_hat_store*y_sd,
+              x = x,
+              x_e = x_e,
+              x_g = x_g,
+              x_g_e = x_g_e))
 
 } # End main function
