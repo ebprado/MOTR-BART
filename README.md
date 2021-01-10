@@ -1,6 +1,6 @@
 # BART with Model Trees (MOTR-BART)
 
-This repository contains R scripts and data sets that can be used to reproduce the results presented in "Estevão B. Prado, Rafael A. Moral, Andrew C. Parnell (2021). _Bayesian Additive Regression Trees with Model Trees_. Statistics in Computing. To appear.
+This repository contains R scripts and data sets that can be used to reproduce the results presented in "Estevão B. Prado, Rafael A. Moral, Andrew C. Parnell (2021). _[Bayesian Additive Regression Trees with Model Trees]_(https://arxiv.org/pdf/2006.07493.pdf). Statistics in Computing. To appear.
 
 In addition, it provides an implementation of MOTR-BART in the format of an R package named ```MOTRbart```.
 
