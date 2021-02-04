@@ -325,7 +325,7 @@ motr_bart_class = function(x,
       #   current_partial_residuals = z
       # }
 
-      current_partial_residuals = y_scale - predictions + tree_fits_store[,j]
+      current_partial_residuals = z - predictions + tree_fits_store[,j]
 
       # Propose a new tree via grow/change/prune/swap
       type = sample(c('grow', 'prune', 'change', 'swap'), 1)
