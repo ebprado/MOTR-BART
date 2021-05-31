@@ -407,7 +407,7 @@ motr_bart_class = function(x,
     # Update z (latent variable)
     z = update_z(y, predictions)
 
-    sum_of_squares = sum((y_scale - pnorm(predictions))^2)
+    # sum_of_squares = sum((y_scale - pnorm(predictions))^2)
 
     # Update sigma2_beta0 and sigma2_beta1
     if (vars_inter_slope == 'TRUE') {
@@ -417,7 +417,7 @@ motr_bart_class = function(x,
     }
 
     # Update sigma2 (variance of the residuals)
-    sigma2 = update_sigma2(sum_of_squares, n = n, nu, lambda)
+    # sigma2 = update_sigma2(sum_of_squares, n = n, nu, lambda)
 
     # Update s = (s_1, ..., s_p), where s_p is the probability that predictor p is used to create new terminal nodes
     if (sparse == 'TRUE' & i > floor(TotIter*0.1)){
