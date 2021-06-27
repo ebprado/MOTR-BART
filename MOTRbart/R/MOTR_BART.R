@@ -20,10 +20,11 @@ motr_bart = function(x,
                      nthin = 1,
                      ancestors = FALSE) {
 
+  x = as.data.frame(x)
   # Quantities needed for prediction
   center = apply(x, 2, mean)
   scale = apply(x, 2, sd)
-  aux.X = as.data.frame(apply(x, 2, unique)) # Checking how many unique values each variable has
+  aux.X = lapply(x, unique) # Checking how many unique values each variable has
   unique.values.X = unlist(lapply(aux.X, length))
 
   center[which(unique.values.X<=2)] = 0
@@ -236,11 +237,12 @@ motr_bart_class = function(x,
                      ancestors = FALSE) {
 
   y = as.integer(as.factor(y)) -1
+  x = as.data.frame(x)
 
   # Quantities needed for prediction
   center = apply(x, 2, mean)
   scale = apply(x, 2, sd)
-  aux.X = as.data.frame(apply(x, 2, unique)) # Checking how many unique values each variable has
+  aux.X = lapply(x, unique) # Checking how many unique values each variable has
   unique.values.X = unlist(lapply(aux.X, length))
 
   center[which(unique.values.X<=2)] = 0
