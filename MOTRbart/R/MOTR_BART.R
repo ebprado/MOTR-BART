@@ -20,19 +20,17 @@ motr_bart = function(x,
                      nthin = 1,
                      ancestors = FALSE) {
 
-  X_orig = x
-  X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
-
-  aux.X = apply(X, 2, unique) # Checking how many unique values each variable has
-  unique.values.X = unlist(lapply(aux.X, length))
-  X[, which(unique.values.X==2)] = as.matrix(X_orig[, which(unique.values.X==2)-1]) # Keeping the binary variables as they originally are
-
   # Quantities needed for prediction
-  center = apply(X_orig, 2, mean)
-  scale = apply(X_orig, 2, sd)
+  center = apply(x, 2, mean)
+  scale = apply(x, 2, sd)
+  aux.X = as.data.frame(apply(x, 2, unique)) # Checking how many unique values each variable has
+  unique.values.X = unlist(lapply(aux.X, length))
 
-  center[which(unique.values.X==2)-1] = 0
-  scale[which(unique.values.X==2)-1] = 1
+  center[which(unique.values.X<=2)] = 0
+  scale[which(unique.values.X<=2)] = 1
+
+  X_orig = x
+  X = as.matrix(cbind(1,scale(x, center, scale))) # standardising the covariates and adding an intercept
 
   # Extract control parameters
   node_min_size = node_min_size
@@ -237,20 +235,19 @@ motr_bart_class = function(x,
                      nthin = 1,
                      ancestors = FALSE) {
 
-  X_orig = x
-  X = as.matrix(cbind(1,scale(x))) # standardising the covariates and adding an intercept
   y = as.integer(as.factor(y)) -1
 
-  aux.X = apply(X, 2, unique) # Checking how many unique values each variable has
-  unique.values.X = unlist(lapply(aux.X, length))
-  X[, which(unique.values.X==2)] = as.matrix(X_orig[, which(unique.values.X==2)-1]) # Keeping the binary variables as they originally are
-
   # Quantities needed for prediction
-  center = apply(X_orig, 2, mean)
-  scale = apply(X_orig, 2, sd)
+  center = apply(x, 2, mean)
+  scale = apply(x, 2, sd)
+  aux.X = as.data.frame(apply(x, 2, unique)) # Checking how many unique values each variable has
+  unique.values.X = unlist(lapply(aux.X, length))
 
-  center[which(unique.values.X==2)-1] = 0
-  scale[which(unique.values.X==2)-1] = 1
+  center[which(unique.values.X<=2)] = 0
+  scale[which(unique.values.X<=2)] = 1
+
+  X_orig = x
+  X = as.matrix(cbind(1,scale(x, center, scale))) # standardising the covariates and adding an intercept
 
   # Extract control parameters
   node_min_size = node_min_size
