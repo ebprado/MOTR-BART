@@ -24,7 +24,7 @@ predict_motr_bart_class(object,
 \item{type}{Should the predicted values be the \code{"mean"} or \code{"median"} of the posterior draws? It is also possible to set \code{"all"}, where no function is applied and the posterior draws are returned for each MCMC iteration.}
 }
 \value{
-If \code{type = "mean"} or \code{type = "median"}, then a vector with predicted values is returned. If \code{type = "all"}, an n times npost is returned, where n is the number of row of \code{newdata}.
+If \code{type = "mean"} or \code{type = "median"}, then a vector with predicted values is returned. If \code{type = "all"}, a matrix (npost x n) is returned, where n is the number of row of \code{newdata}.
 
 Note that when the response variable is binary, \code{y_hat} contains the draws of the probability P(Y = 1 | x).
 
