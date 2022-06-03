@@ -100,8 +100,7 @@ motr_bart = function(x,
       current_partial_residuals = y_scale - predictions + tree_fits_store[,j]
 
       # Propose a new tree via grow/change/prune/swap
-      type = sample(c('grow', 'prune', 'change', 'swap'), 1)
-      if(i < max(floor(0.1*nburn), 10)) type = 'grow' # Grow for the first few iterations
+      type = sample_move(curr_trees[[j]], i, nburn)
 
       # Generate a new tree based on the current
       new_trees[[j]] = update_tree(y = y_scale,
@@ -137,8 +136,14 @@ motr_bart = function(x,
                                     ancestors) +
         get_tree_prior(new_trees[[j]], alpha, beta)
 
-      # Exponentiate the results above
-      a = exp(l_new - l_old)
+      # Exponentiate and multiply by the transition probabilities
+      if(type == 'grow'){
+        a = exp(l_new - l_old)*ratio_grow(new_trees[[j]], curr_trees[[j]])
+      } else if(type == 'prune'){
+        a = exp(l_new - l_old)*ratio_prune(new_trees[[j]], curr_trees[[j]])
+      } else{
+        a = exp(l_new - l_old)
+      }
 
       if(a > runif(1)) {
 

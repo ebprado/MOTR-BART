@@ -200,3 +200,13 @@ update_vars_intercepts_slopes <- function(trees, n_tress, sigma2, a0 = 1, b0 = 1
     return(list(var_inter = rgamma(1, (n_terminal/2) + a0, sum_of_squares_inter/(2*sigma2) + b0),
                 var_slopes = rgamma(1, (n_vars_terminal/2) + a1, sum_of_squares_slopes/(2*sigma2) + b1)))
 }
+
+sample_move = function(curr_tree, i, nburn){
+
+  if (nrow(curr_tree$tree_matrix) == 1 || i < max(floor(0.1*nburn), 10)) {
+    type = 'grow'
+  } else {
+    type = sample(c('grow', 'prune', 'change'), 1)
+  }
+  return(type)
+}

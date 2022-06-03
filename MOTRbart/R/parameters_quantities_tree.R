@@ -156,3 +156,33 @@ update_z = function(y, prediction){
   return(log_prior)
 
   }
+
+  ### The code below I took from the Eoghan O'Neill's github
+
+  # This functions calculates the number of terminal nodes
+  get_nterminal = function(tree){
+
+    indeces = which(tree$tree_matrix[,'terminal'] == '1') # determine which indeces have a terminal node label
+    b = as.numeric(length(indeces)) # take the length of these indeces, to determine the number of terminal nodes/leaves
+    return(b)
+  }
+
+  # This function calculates the number of parents with two terminal nodes/ second generartion internal nodes as formulated in bartMachine
+  get_w = function(tree){
+    indeces = which(tree$tree_matrix[,'terminal'] == '1') #determine which indeces have a terminal node label
+    # determine the parent for each terminal node and sum the number of duplicated parents
+    w = as.numeric(sum(duplicated(tree$tree_matrix[indeces,'parent'])))
+    return(w)
+  }
+
+# These functions calculate the grow and prune ratios respectively according to the Bart Machine/ soft BART papers
+  ratio_grow = function(new_tree, cur_tree){
+    grow_ratio = get_nterminal(cur_tree)/(get_w(new_tree)+1)
+
+    return(as.numeric(grow_ratio))
+  }
+
+  ratio_prune = function(new_tree, cur_tree){
+    prune_ratio = get_w(new_tree)/(get_nterminal(cur_tree)-1)
+    return(as.numeric(prune_ratio))
+  }
