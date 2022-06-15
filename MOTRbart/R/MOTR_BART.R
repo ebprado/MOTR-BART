@@ -416,7 +416,7 @@ motr_bart_class = function(x,
     # Update sigma2_beta0 and sigma2_beta1
     if (vars_inter_slope == 'TRUE') {
       vars_betas = update_vars_intercepts_slopes(curr_trees, ntrees, sigma2)
-      V = 1/c(vars_betas$var_inter, vars_betas$var_slopes)
+      V = 1/(c(vars_betas$var_inter, vars_betas$var_slopes) * ntrees)
       inv_V = 1/V
     }
 
