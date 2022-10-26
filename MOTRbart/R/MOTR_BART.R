@@ -138,15 +138,13 @@ motr_bart = function(x,
 
       # Exponentiate and multiply by the transition probabilities
 
-      a = exp(l_new - l_old)
-
-      # if(type == 'grow'){
-      #   a = exp(l_new - l_old)*ratio_grow(new_trees[[j]], curr_trees[[j]])
-      # } else if(type == 'prune'){
-      #   a = exp(l_new - l_old)*ratio_prune(new_trees[[j]], curr_trees[[j]])
-      # } else{
-      #   a = exp(l_new - l_old)
-      # }
+      if(type == 'grow'){
+        a = exp(l_new - l_old)*ratio_grow(new_trees[[j]], curr_trees[[j]])
+      } else if(type == 'prune'){
+        a = exp(l_new - l_old)*ratio_prune(new_trees[[j]], curr_trees[[j]])
+      } else{
+        a = exp(l_new - l_old)
+      }
 
       if(a > runif(1)) {
 
